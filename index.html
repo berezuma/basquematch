@@ -7,123 +7,342 @@
 <meta name="mobile-web-app-capable" content="yes">
 <title>Euskara Egunero</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0f1117;--surface:#1a1d27;--card:#252836;--card-hover:#2e3245;
-  --green:#00c853;--green-bg:rgba(0,200,83,.15);
-  --red:#ff1744;--red-bg:rgba(255,23,68,.15);
-  --accent:#7c4dff;--accent-light:#b388ff;
-  --text:#e8eaed;--text-dim:#9aa0a6;
-  --radius:12px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+  --bg:#f5f5f7;
+  --surface:#ffffff;
+  --border:#e5e5ea;
+  --border-light:#f0f0f3;
+  --correct:#34c759;
+  --correct-bg:#ecfaf0;
+  --correct-border:#b8e9c4;
+  --error:#ff3b30;
+  --error-bg:#fef0ef;
+  --error-border:#f5c6c3;
+  --accent:#1d1d1f;
+  --accent-secondary:#6e6e73;
+  --text:#1d1d1f;
+  --text-secondary:#86868b;
+  --text-tertiary:#aeaeb2;
+  --selected:#007aff;
+  --selected-bg:#eef4ff;
+  --selected-border:#bdd5fc;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 16px rgba(0,0,0,.08);
+  --shadow-lg:0 12px 40px rgba(0,0,0,.12);
+  --radius:14px;
+  --radius-sm:10px;
+  --transition:.2s ease;
 }
-html,body{height:100%;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-body{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
+html{height:100%}
+body{
+  min-height:100vh;min-height:100dvh;
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  background:var(--bg);color:var(--text);
+  overflow-x:hidden;-webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;display:flex;flex-direction:column;
+}
 
-/* Header */
-.header{text-align:center;padding:16px 12px 8px;background:linear-gradient(180deg,rgba(124,77,255,.12) 0%,transparent 100%)}
-.header h1{font-size:1.6rem;font-weight:800;letter-spacing:-.5px;background:linear-gradient(135deg,var(--accent-light),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.header .subtitle{font-size:.75rem;color:var(--text-dim);margin-top:2px;letter-spacing:1px;text-transform:uppercase}
+/* ========== HEADER ========== */
+.header{
+  padding:20px 20px 0;display:flex;align-items:center;
+  justify-content:space-between;
+}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-mark{
+  width:36px;height:36px;border-radius:10px;
+  background:var(--accent);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:.9rem;letter-spacing:-.5px;
+}
+.brand h1{font-size:1.15rem;font-weight:700;color:var(--accent);letter-spacing:-.3px}
+.header-meta{
+  font-size:.75rem;font-weight:500;color:var(--text-tertiary);
+  letter-spacing:-.1px;
+}
 
-/* Language Selector */
-.lang-bar{display:flex;justify-content:center;gap:8px;padding:10px 16px}
-.lang-btn{border:none;background:var(--card);color:var(--text-dim);font-size:.85rem;font-weight:600;padding:8px 20px;border-radius:999px;cursor:pointer;transition:var(--transition);touch-action:manipulation}
-.lang-btn.active{background:var(--accent);color:#fff;box-shadow:0 2px 12px rgba(124,77,255,.35)}
+/* ========== LANG SELECTOR ========== */
+.lang-bar{display:flex;gap:6px;padding:16px 20px 0}
+.lang-btn{
+  flex:1;border:1.5px solid var(--border);background:var(--surface);
+  color:var(--text-secondary);font-family:inherit;
+  font-size:.8rem;font-weight:600;padding:9px 0;
+  border-radius:var(--radius-sm);cursor:pointer;
+  transition:var(--transition);touch-action:manipulation;
+}
+.lang-btn.active{
+  background:var(--accent);color:#fff;
+  border-color:var(--accent);
+}
 
-/* Status Bar */
-.status-bar{display:flex;justify-content:space-between;align-items:center;padding:8px 16px;margin:4px 12px;background:var(--surface);border-radius:var(--radius)}
-.stat{display:flex;align-items:center;gap:6px;font-size:.85rem;font-weight:600}
-.stat .icon{font-size:1.1rem}
-.stat .val{color:var(--accent-light)}
+/* ========== STATUS BAR ========== */
+.status-bar{
+  display:flex;gap:8px;padding:12px 20px 0;
+}
+.stat-card{
+  flex:1;background:var(--surface);border:1px solid var(--border-light);
+  border-radius:var(--radius-sm);padding:10px 12px;
+  display:flex;flex-direction:column;gap:2px;
+}
+.stat-label{font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-tertiary)}
+.stat-value{font-size:1.1rem;font-weight:700;color:var(--accent);letter-spacing:-.3px}
 
-/* Game Board */
-.board{flex:1;display:flex;gap:10px;padding:10px 12px;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.col{flex:1;display:flex;flex-direction:column;gap:8px}
+/* ========== GAME BOARD ========== */
+.board{
+  flex:1;display:flex;gap:8px;padding:12px 12px 0;
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+}
+.col{flex:1;display:flex;flex-direction:column;gap:6px}
+.col-header{
+  font-size:.65rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.8px;color:var(--text-tertiary);text-align:center;
+  padding:0 0 4px;
+}
 .tile{
-  position:relative;padding:14px 10px;background:var(--card);border:2px solid transparent;
-  border-radius:var(--radius);text-align:center;font-size:.92rem;font-weight:600;
-  cursor:pointer;transition:var(--transition);user-select:none;touch-action:manipulation;
-  display:flex;align-items:center;justify-content:center;min-height:48px;
-  word-break:break-word;line-height:1.25
+  position:relative;padding:13px 8px;
+  background:var(--surface);
+  border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);
+  text-align:center;font-size:.85rem;font-weight:600;
+  color:var(--text);letter-spacing:-.1px;
+  cursor:pointer;transition:all .2s ease;
+  user-select:none;touch-action:manipulation;
+  display:flex;align-items:center;justify-content:center;
+  min-height:46px;word-break:break-word;line-height:1.25;
 }
-.tile:active{transform:scale(.96)}
-.tile.selected{border-color:var(--accent);background:var(--card-hover);box-shadow:0 0 16px rgba(124,77,255,.2)}
-.tile.matched{background:var(--green-bg);border-color:var(--green);color:var(--green);cursor:default;pointer-events:none}
-.tile.wrong{background:var(--red-bg);border-color:var(--red);color:var(--red);animation:shake .4s ease}
-.tile.disabled{pointer-events:none;opacity:.5}
+.tile:active{transform:scale(.97)}
+.tile.selected{
+  border-color:var(--selected);background:var(--selected-bg);
+  color:var(--selected);box-shadow:0 0 0 3px rgba(0,122,255,.12);
+}
+.tile.matched{
+  background:var(--correct-bg);border-color:var(--correct-border);
+  color:var(--correct);cursor:default;pointer-events:none;
+}
+.tile.wrong{
+  background:var(--error-bg);border-color:var(--error-border);
+  color:var(--error);animation:shake .35s ease;
+}
+.tile.disabled{pointer-events:none;opacity:.4}
 
-@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-4px)}40%,80%{transform:translateX(4px)}}
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-3px)}
+  75%{transform:translateX(3px)}
+}
 
-/* Progress dots */
-.progress{display:flex;justify-content:center;gap:6px;padding:8px 0 12px}
-.dot{width:10px;height:10px;border-radius:50%;background:var(--card);transition:var(--transition)}
-.dot.done{background:var(--green)}
-.dot.fail{background:var(--red)}
+/* ========== PROGRESS BAR ========== */
+.progress-track{
+  display:flex;gap:4px;padding:10px 20px 16px;justify-content:center;
+}
+.pip{
+  width:100%;max-width:28px;height:4px;border-radius:2px;
+  background:var(--border);transition:background .3s ease;
+}
+.pip.ok{background:var(--correct)}
+.pip.miss{background:var(--error)}
 
-/* Modal Overlay */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:100;opacity:0;pointer-events:none;transition:opacity .3s ease}
+/* ========== COMPLETED STATE ========== */
+.completed-overlay{
+  position:absolute;inset:0;background:rgba(245,245,247,.85);
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+  display:flex;align-items:center;justify-content:center;
+  z-index:10;border-radius:var(--radius);
+}
+.completed-msg{
+  text-align:center;padding:20px;
+}
+.completed-msg p{font-size:.9rem;font-weight:600;color:var(--text);margin-bottom:4px}
+.completed-msg span{font-size:.8rem;color:var(--text-secondary)}
+
+/* ========== MODAL OVERLAY ========== */
+.overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.3);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  display:flex;align-items:flex-end;justify-content:center;
+  z-index:100;opacity:0;pointer-events:none;
+  transition:opacity .25s ease;
+  padding:0 0 env(safe-area-inset-bottom,0);
+}
 .overlay.show{opacity:1;pointer-events:auto}
-.modal{background:var(--surface);border-radius:20px;padding:28px 24px;max-width:340px;width:90%;text-align:center;transform:scale(.9);transition:transform .3s ease}
-.overlay.show .modal{transform:scale(1)}
-.modal h2{font-size:1.5rem;margin-bottom:4px}
-.modal .emoji{font-size:2.8rem;margin:10px 0}
-.modal .stats-row{display:flex;justify-content:center;gap:20px;margin:16px 0}
-.modal .stats-row div{display:flex;flex-direction:column;align-items:center}
-.modal .stats-row .num{font-size:1.6rem;font-weight:800;color:var(--accent-light)}
-.modal .stats-row .lbl{font-size:.7rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px}
-.modal .sequence{font-size:1rem;letter-spacing:2px;margin:10px 0;word-break:break-all}
-.share-btn{
-  display:inline-flex;align-items:center;gap:8px;margin-top:16px;padding:14px 32px;
-  background:var(--accent);color:#fff;font-size:1rem;font-weight:700;
-  border:none;border-radius:999px;cursor:pointer;transition:var(--transition);touch-action:manipulation
+.modal{
+  background:var(--surface);
+  border-radius:20px 20px 0 0;
+  padding:8px 24px 32px;max-width:480px;width:100%;
+  transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);
 }
-.share-btn:active{transform:scale(.96);background:var(--accent-light)}
-.copied-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:10px 24px;border-radius:999px;font-weight:600;font-size:.9rem;opacity:0;transition:opacity .3s;pointer-events:none;z-index:200}
-.copied-toast.show{opacity:1}
+.overlay.show .modal{transform:translateY(0)}
+.modal-handle{
+  width:36px;height:4px;border-radius:2px;
+  background:var(--border);margin:0 auto 20px;
+}
+
+.modal-title{font-size:1.3rem;font-weight:800;text-align:center;letter-spacing:-.4px;margin-bottom:2px}
+.modal-sub{font-size:.8rem;color:var(--text-secondary);text-align:center;font-weight:500;margin-bottom:20px}
+
+.result-grid{display:flex;gap:12px;margin-bottom:20px}
+.result-card{
+  flex:1;background:var(--bg);border-radius:var(--radius-sm);
+  padding:14px 8px;text-align:center;
+}
+.result-card .num{font-size:1.5rem;font-weight:800;color:var(--accent);letter-spacing:-.5px}
+.result-card .lbl{font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text-tertiary);margin-top:2px}
+
+.result-sequence{
+  display:flex;gap:3px;justify-content:center;margin-bottom:24px;
+}
+.seq-pip{width:20px;height:6px;border-radius:3px}
+.seq-pip.ok{background:var(--correct)}
+.seq-pip.miss{background:var(--error)}
+
+/* Tomorrow countdown */
+.tomorrow-section{
+  text-align:center;padding:16px 0 20px;
+  border-top:1px solid var(--border-light);margin-bottom:4px;
+}
+.tomorrow-label{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-tertiary);margin-bottom:6px}
+.tomorrow-timer{font-size:1.6rem;font-weight:800;color:var(--accent);letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+
+/* Share section */
+.share-section{margin-top:0}
+.share-label{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-tertiary);text-align:center;margin-bottom:10px}
+
+.share-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.share-btn{
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  padding:12px 4px;border:1.5px solid var(--border);
+  background:var(--surface);border-radius:var(--radius-sm);
+  cursor:pointer;transition:var(--transition);touch-action:manipulation;
+  font-family:inherit;
+}
+.share-btn:active{transform:scale(.95);background:var(--bg)}
+.share-btn svg{width:22px;height:22px}
+.share-btn .s-label{font-size:.6rem;font-weight:600;color:var(--text-secondary);letter-spacing:-.1px}
+
+.share-copy{
+  width:100%;padding:13px;border:1.5px solid var(--border);
+  background:var(--bg);border-radius:var(--radius-sm);
+  font-family:inherit;font-size:.8rem;font-weight:600;
+  color:var(--text);cursor:pointer;transition:var(--transition);
+  touch-action:manipulation;display:flex;align-items:center;
+  justify-content:center;gap:6px;
+}
+.share-copy:active{transform:scale(.98);background:var(--border-light)}
+.share-copy svg{width:16px;height:16px;color:var(--text-secondary)}
+
+/* Toast */
+.toast{
+  position:fixed;top:60px;left:50%;transform:translateX(-50%) translateY(-20px);
+  background:var(--accent);color:#fff;
+  padding:10px 24px;border-radius:var(--radius-sm);
+  font-size:.82rem;font-weight:600;letter-spacing:-.1px;
+  opacity:0;transition:all .3s ease;pointer-events:none;z-index:200;
+  box-shadow:var(--shadow-lg);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <div class="header">
-  <h1>Euskara Egunero</h1>
-  <div class="subtitle">Eguneko 10 hitz &middot; Daily 10 words</div>
+  <div class="brand">
+    <div class="brand-mark">EE</div>
+    <h1>Euskara Egunero</h1>
+  </div>
+  <div class="header-meta" id="headerDate"></div>
 </div>
 
+<!-- LANGUAGE SELECTOR -->
 <div class="lang-bar" id="langBar">
-  <button class="lang-btn active" data-lang="es">ES</button>
-  <button class="lang-btn" data-lang="fr">FR</button>
-  <button class="lang-btn" data-lang="en">EN</button>
+  <button class="lang-btn active" data-lang="es">Castellano</button>
+  <button class="lang-btn" data-lang="fr">Fran&ccedil;ais</button>
+  <button class="lang-btn" data-lang="en">English</button>
 </div>
 
+<!-- STATUS BAR -->
 <div class="status-bar">
-  <div class="stat"><span class="icon">&#x1F525;</span><span id="streakVal" class="val">0</span></div>
-  <div class="stat"><span class="icon">&#x23F1;&#xFE0F;</span><span id="timerVal" class="val">00:00</span></div>
-  <div class="stat"><span class="icon">&#x274C;</span><span id="mistakeVal" class="val">0</span></div>
-</div>
-
-<div class="board" id="board">
-  <div class="col" id="colLeft"></div>
-  <div class="col" id="colRight"></div>
-</div>
-
-<div class="progress" id="progress"></div>
-
-<!-- Win Modal -->
-<div class="overlay" id="overlay">
-  <div class="modal">
-    <div class="emoji">&#x1F389;</div>
-    <h2>Zorionak!</h2>
-    <p style="color:var(--text-dim);font-size:.85rem;margin-bottom:4px">Congratulations!</p>
-    <div class="stats-row">
-      <div><span class="num" id="mStreak">0</span><span class="lbl">Streak</span></div>
-      <div><span class="num" id="mTime">0:00</span><span class="lbl">Time</span></div>
-      <div><span class="num" id="mMistakes">0</span><span class="lbl">Mistakes</span></div>
-    </div>
-    <div class="sequence" id="mSeq"></div>
-    <button class="share-btn" id="shareBtn">&#x1F4CB; Share Result</button>
+  <div class="stat-card">
+    <span class="stat-label">Racha</span>
+    <span class="stat-value" id="streakVal">0</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">Tiempo</span>
+    <span class="stat-value" id="timerVal">00:00</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">Errores</span>
+    <span class="stat-value" id="mistakeVal">0</span>
   </div>
 </div>
 
-<div class="copied-toast" id="toast">Copied to clipboard!</div>
+<!-- GAME BOARD -->
+<div class="board" id="board" style="position:relative">
+  <div class="col">
+    <div class="col-header">Euskara</div>
+    <div id="colLeft"></div>
+  </div>
+  <div class="col">
+    <div class="col-header" id="colRightLabel">Castellano</div>
+    <div id="colRight"></div>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-track" id="progress"></div>
+
+<!-- WIN MODAL (bottom sheet) -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Ondo egin!</div>
+    <div class="modal-sub">Has completado el reto de hoy</div>
+
+    <div class="result-grid">
+      <div class="result-card"><div class="num" id="mStreak">0</div><div class="lbl">Racha</div></div>
+      <div class="result-card"><div class="num" id="mTime">00:00</div><div class="lbl">Tiempo</div></div>
+      <div class="result-card"><div class="num" id="mMistakes">0</div><div class="lbl">Errores</div></div>
+    </div>
+
+    <div class="result-sequence" id="mSeq"></div>
+
+    <div class="tomorrow-section">
+      <div class="tomorrow-label">Siguiente reto en</div>
+      <div class="tomorrow-timer" id="countdown">--:--:--</div>
+    </div>
+
+    <div class="share-section">
+      <div class="share-label">Compartir resultado</div>
+      <div class="share-grid">
+        <button class="share-btn" id="shareX" aria-label="Compartir en X">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          <span class="s-label">X</span>
+        </button>
+        <button class="share-btn" id="shareFB" aria-label="Compartir en Facebook">
+          <svg viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          <span class="s-label">Facebook</span>
+        </button>
+        <button class="share-btn" id="shareWA" aria-label="Compartir en WhatsApp">
+          <svg viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          <span class="s-label">WhatsApp</span>
+        </button>
+        <button class="share-btn" id="shareMD" aria-label="Compartir en Mastodon">
+          <svg viewBox="0 0 24 24" fill="#6364FF"><path d="M23.268 5.313c-.35-2.578-2.617-4.61-5.304-5.004C17.51.242 15.792 0 11.813 0h-.03c-3.98 0-4.835.242-5.288.309C3.882.692 1.496 2.518.917 5.127.64 6.412.61 7.837.661 9.143c.074 1.874.088 3.745.26 5.611.118 1.24.325 2.47.62 3.68.55 2.237 2.777 4.098 4.96 4.857 2.336.792 4.849.923 7.256.38.265-.061.527-.132.786-.213.585-.184 1.27-.39 1.774-.753a.057.057 0 00.023-.043v-1.809a.052.052 0 00-.02-.041.053.053 0 00-.046-.01 20.282 20.282 0 01-4.709.547c-2.73 0-3.463-1.284-3.674-1.818a5.593 5.593 0 01-.319-1.433.053.053 0 01.066-.054 19.648 19.648 0 004.581.536h.344c1.587 0 3.176-.088 4.748-.345 1.607-.263 3.099-.744 3.455-3.308.014-.1.025-.207.036-.307.088-.794.168-1.616.168-2.42 0-.741-.025-1.027-.036-1.442zM19.43 12.17h-2.67v5.423c0 1.143-.475 1.724-1.424 1.724-.85 0-1.275-.585-1.275-1.724V9.42h-2.65v5.398c0 1.14-.425 1.724-1.276 1.724-.948 0-1.424-.581-1.424-1.724V9.42H6.042v5.63c0 1.14.29 2.048.87 2.72.593.683 1.37 1.031 2.334 1.031 1.116 0 1.962-.43 2.525-1.289l.544-.909.544.91c.563.858 1.41 1.288 2.525 1.288.964 0 1.74-.348 2.334-1.03.58-.673.87-1.58.87-2.72V9.42c.002-.548-.003-.917-.158-1.25z"/></svg>
+          <span class="s-label">Mastodon</span>
+        </button>
+      </div>
+      <button class="share-copy" id="shareCopy">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        Copiar resultado
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">Copiado al portapapeles</div>
 
 <script>
 /* ===== 100 BASQUE WORDS / PHRASES ===== */
@@ -230,6 +449,8 @@ const WORDS=[
 {eus:"ikasi",es:"aprender",fr:"apprendre",en:"to learn"}
 ];
 
+const LANG_LABELS={es:'Castellano',fr:'Français',en:'English'};
+
 /* ===== SEEDED PRNG (Mulberry32) ===== */
 function seedFromDate(){
   const d=new Date();
@@ -254,7 +475,8 @@ let mistakes=0;
 let timerStarted=false;
 let timerInterval=null;
 let seconds=0;
-let sequence=[]; // track match/miss sequence
+let sequence=[];
+let alreadyCompleted=false;
 const TODAY_KEY='ee_today';
 
 /* ===== INIT ===== */
@@ -262,20 +484,17 @@ function init(){
   const seed=seedFromDate();
   rng=mulberry32(seed);
 
-  // Pick 10 unique indices
-  const indices=[];
   const pool=[...Array(WORDS.length).keys()];
-  for(let i=pool.length-1;i>0;i--){const j=Math.floor(rng()*((i)+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
-  for(let i=0;i<10;i++) indices.push(pool[i]);
-  dailyItems=indices.map(i=>WORDS[i]);
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
+  dailyItems=pool.slice(0,10).map(i=>WORDS[i]);
 
-  // Check if already completed today
+  renderDateHeader();
   checkTodayState();
-
   loadStreak();
   renderBoard();
   renderProgress();
   setupLangButtons();
+  startCountdown();
 }
 
 function getDateStr(){
@@ -283,51 +502,49 @@ function getDateStr(){
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
+function renderDateHeader(){
+  const d=new Date();
+  const opts={day:'numeric',month:'short',year:'numeric'};
+  document.getElementById('headerDate').textContent=d.toLocaleDateString('es-ES',opts);
+}
+
 function checkTodayState(){
   try{
     const saved=JSON.parse(localStorage.getItem(TODAY_KEY));
     if(saved&&saved.date===getDateStr()&&saved.completed){
-      // Already finished today — restore state for display
       matchCount=10;mistakes=saved.mistakes||0;seconds=saved.seconds||0;
       sequence=saved.sequence||[];
-      timerStarted=true;
+      timerStarted=true;alreadyCompleted=true;
       document.getElementById('timerVal').textContent=formatTime(seconds);
       document.getElementById('mistakeVal').textContent=mistakes;
-      // Show modal after short delay
-      setTimeout(()=>showWinModal(),400);
+      setTimeout(()=>showWinModal(),500);
     }
   }catch(e){}
 }
 
 /* ===== RENDER ===== */
 function renderBoard(){
-  const left=document.getElementById('colLeft');
-  const right=document.getElementById('colRight');
-  left.innerHTML='';right.innerHTML='';
+  const leftCol=document.getElementById('colLeft');
+  const rightCol=document.getElementById('colRight');
+  leftCol.innerHTML='';rightCol.innerHTML='';
+  document.getElementById('colRightLabel').textContent=LANG_LABELS[lang];
 
-  // Left column — basque, fixed order
   dailyItems.forEach((item,i)=>{
-    const t=makeTile(item.eus,i,'left');
-    left.appendChild(t);
+    leftCol.appendChild(makeTile(item.eus,i,'left'));
   });
 
-  // Right column — shuffled by daily seed
-  const rightOrder=[...dailyItems.map((item,i)=>({text:item[lang],idx:i}))];
-  // Use a fresh PRNG from same seed for shuffle
+  const rightOrder=dailyItems.map((item,i)=>({text:item[lang],idx:i}));
   const seed=seedFromDate();
   const rng2=mulberry32(seed);
-  // Advance rng2 by 100 calls to get different shuffle than pick
   for(let i=0;i<100;i++) rng2();
-  for(let i=rightOrder.length-1;i>0;i--){const j=Math.floor(rng2()*((i)+1));[rightOrder[i],rightOrder[j]]=[rightOrder[j],rightOrder[i]]}
+  for(let i=rightOrder.length-1;i>0;i--){const j=Math.floor(rng2()*(i+1));[rightOrder[i],rightOrder[j]]=[rightOrder[j],rightOrder[i]]}
 
-  rightOrder.forEach((obj)=>{
-    const t=makeTile(obj.text,obj.idx,'right');
-    right.appendChild(t);
+  rightOrder.forEach(obj=>{
+    rightCol.appendChild(makeTile(obj.text,obj.idx,'right'));
   });
 
-  // If already completed, mark all matched
   if(matchCount===10){
-    document.querySelectorAll('.tile').forEach(t=>{t.classList.add('matched')});
+    document.querySelectorAll('.tile').forEach(t=>t.classList.add('matched'));
   }
 }
 
@@ -345,12 +562,10 @@ function renderProgress(){
   const c=document.getElementById('progress');
   c.innerHTML='';
   for(let i=0;i<10;i++){
-    const dot=document.createElement('div');
-    dot.className='dot';
-    if(i<sequence.length){
-      dot.classList.add(sequence[i]==='ok'?'done':'fail');
-    }
-    c.appendChild(dot);
+    const pip=document.createElement('div');
+    pip.className='pip';
+    if(i<sequence.length) pip.classList.add(sequence[i]==='ok'?'ok':'miss');
+    c.appendChild(pip);
   }
 }
 
@@ -358,11 +573,10 @@ function renderProgress(){
 function setupLangButtons(){
   document.querySelectorAll('.lang-btn').forEach(btn=>{
     btn.addEventListener('click',()=>{
-      if(btn.dataset.lang===lang)return;
+      if(btn.dataset.lang===lang) return;
       document.querySelector('.lang-btn.active').classList.remove('active');
       btn.classList.add('active');
       lang=btn.dataset.lang;
-      // Re-render right column only (preserve left selection)
       selectedLeft=null;selectedRight=null;
       clearSelections();
       renderBoard();
@@ -372,7 +586,7 @@ function setupLangButtons(){
 
 /* ===== TIMER ===== */
 function startTimer(){
-  if(timerStarted)return;
+  if(timerStarted) return;
   timerStarted=true;
   timerInterval=setInterval(()=>{
     seconds++;
@@ -386,16 +600,32 @@ function formatTime(s){
   return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
 }
 
+/* ===== COUNTDOWN TO NEXT DAY ===== */
+function startCountdown(){
+  updateCountdown();
+  setInterval(updateCountdown,1000);
+}
+function updateCountdown(){
+  const el=document.getElementById('countdown');
+  if(!el) return;
+  const now=new Date();
+  const tomorrow=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1);
+  const diff=tomorrow-now;
+  const h=Math.floor(diff/3600000);
+  const m=Math.floor((diff%3600000)/60000);
+  const s=Math.floor((diff%60000)/1000);
+  el.textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
 /* ===== STREAK ===== */
 function loadStreak(){
   try{
     const data=JSON.parse(localStorage.getItem('ee_streak'));
     if(data){
-      // Check if streak is still alive (last play was yesterday or today)
       const last=new Date(data.lastDate);
       const now=new Date();
-      const diff=Math.floor((now-last)/(1000*60*60*24));
-      if(diff>1){data.count=0;} // streak broken
+      const diff=Math.floor((now-last)/(86400000));
+      if(diff>1) data.count=0;
       document.getElementById('streakVal').textContent=data.count;
     }
   }catch(e){}
@@ -404,11 +634,11 @@ function incrementStreak(){
   let data={count:0,lastDate:''};
   try{const saved=JSON.parse(localStorage.getItem('ee_streak'));if(saved)data=saved}catch(e){}
   const today=getDateStr();
-  if(data.lastDate===today)return data.count; // already counted today
+  if(data.lastDate===today) return data.count;
   const last=new Date(data.lastDate);
   const now=new Date(today);
-  const diff=Math.floor((now-last)/(1000*60*60*24));
-  if(diff===1){data.count++}else if(diff>1){data.count=1}else{data.count=1}
+  const diff=Math.floor((now-last)/86400000);
+  data.count=(diff===1)?data.count+1:1;
   data.lastDate=today;
   localStorage.setItem('ee_streak',JSON.stringify(data));
   document.getElementById('streakVal').textContent=data.count;
@@ -417,47 +647,35 @@ function incrementStreak(){
 
 /* ===== GAME LOGIC ===== */
 function onTileClick(tile){
-  if(locked||tile.classList.contains('matched'))return;
+  if(locked||tile.classList.contains('matched')) return;
   startTimer();
 
   const side=tile.dataset.side;
-  const idx=parseInt(tile.dataset.idx);
-
   if(side==='left'){
-    if(selectedLeft)selectedLeft.classList.remove('selected');
+    if(selectedLeft) selectedLeft.classList.remove('selected');
     if(selectedLeft===tile){selectedLeft=null;return}
-    selectedLeft=tile;
-    tile.classList.add('selected');
+    selectedLeft=tile;tile.classList.add('selected');
   }else{
-    if(selectedRight)selectedRight.classList.remove('selected');
+    if(selectedRight) selectedRight.classList.remove('selected');
     if(selectedRight===tile){selectedRight=null;return}
-    selectedRight=tile;
-    tile.classList.add('selected');
+    selectedRight=tile;tile.classList.add('selected');
   }
 
-  // Check match if both selected
   if(selectedLeft&&selectedRight){
     locked=true;
     const lIdx=parseInt(selectedLeft.dataset.idx);
     const rIdx=parseInt(selectedRight.dataset.idx);
 
     if(lIdx===rIdx){
-      // Match!
       selectedLeft.classList.add('matched');
       selectedRight.classList.add('matched');
       selectedLeft.classList.remove('selected');
       selectedRight.classList.remove('selected');
-      matchCount++;
-      sequence.push('ok');
-      renderProgress();
-      selectedLeft=null;selectedRight=null;
-      locked=false;
-
+      matchCount++;sequence.push('ok');renderProgress();
+      selectedLeft=null;selectedRight=null;locked=false;
       if(matchCount===10) onWin();
     }else{
-      // Mismatch
-      mistakes++;
-      sequence.push('miss');
+      mistakes++;sequence.push('miss');
       document.getElementById('mistakeVal').textContent=mistakes;
       renderProgress();
       selectedLeft.classList.add('wrong');
@@ -466,8 +684,7 @@ function onTileClick(tile){
       setTimeout(()=>{
         sl.classList.remove('wrong','selected');
         sr.classList.remove('wrong','selected');
-        selectedLeft=null;selectedRight=null;
-        locked=false;
+        selectedLeft=null;selectedRight=null;locked=false;
       },500);
     }
   }
@@ -480,14 +697,14 @@ function clearSelections(){
 /* ===== WIN STATE ===== */
 function onWin(){
   stopTimer();
-  const streak=incrementStreak();
-  // Save today state
+  incrementStreak();
   try{
     localStorage.setItem(TODAY_KEY,JSON.stringify({
       date:getDateStr(),completed:true,mistakes,seconds,sequence
     }));
   }catch(e){}
-  setTimeout(()=>showWinModal(),600);
+  alreadyCompleted=true;
+  setTimeout(()=>showWinModal(),500);
 }
 
 function showWinModal(){
@@ -496,20 +713,61 @@ function showWinModal(){
   document.getElementById('mStreak').textContent=streak;
   document.getElementById('mTime').textContent=formatTime(seconds);
   document.getElementById('mMistakes').textContent=mistakes;
-  const seqStr=sequence.map(s=>s==='ok'?'\u{1F7E9}':'\u{1F7E5}').join('');
-  document.getElementById('mSeq').textContent=seqStr;
+
+  const seqContainer=document.getElementById('mSeq');
+  seqContainer.innerHTML='';
+  sequence.forEach(s=>{
+    const pip=document.createElement('div');
+    pip.className='seq-pip '+(s==='ok'?'ok':'miss');
+    seqContainer.appendChild(pip);
+  });
+
   document.getElementById('overlay').classList.add('show');
 }
 
-/* ===== SHARE ===== */
-document.getElementById('shareBtn').addEventListener('click',()=>{
+/* ===== SHARE HELPERS ===== */
+function getShareText(){
   let streak=0;
   try{const d=JSON.parse(localStorage.getItem('ee_streak'));if(d)streak=d.count}catch(e){}
-  const seqStr=sequence.map(s=>s==='ok'?'\u{1F7E9}':'\u{1F7E5}').join('');
-  const text=`Euskara Egunero | \u{1F525} Streak: ${streak} | \u{23F1}\u{FE0F} ${formatTime(seconds)} | ${seqStr}`;
+  const blocks=sequence.map(s=>s==='ok'?'\u2588':'\u2591').join('');
+  return `Euskara Egunero ${getDateStr()}\nRacha: ${streak} | Tiempo: ${formatTime(seconds)} | Errores: ${mistakes}\n${blocks}`;
+}
 
+function shareToUrl(baseUrl,params){
+  const url=new URL(baseUrl);
+  Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,v));
+  window.open(url.toString(),'_blank','noopener,noreferrer');
+}
+
+// X (Twitter)
+document.getElementById('shareX').addEventListener('click',()=>{
+  shareToUrl('https://x.com/intent/tweet',{text:getShareText()});
+});
+
+// Facebook
+document.getElementById('shareFB').addEventListener('click',()=>{
+  const text=getShareText();
+  shareToUrl('https://www.facebook.com/sharer/sharer.php',{quote:text});
+});
+
+// WhatsApp
+document.getElementById('shareWA').addEventListener('click',()=>{
+  shareToUrl('https://api.whatsapp.com/send',{text:getShareText()});
+});
+
+// Mastodon — prompt for instance
+document.getElementById('shareMD').addEventListener('click',()=>{
+  const instance=prompt('Tu instancia de Mastodon (ej: mastodon.social):');
+  if(!instance) return;
+  const host=instance.replace(/^https?:\/\//,'').replace(/\/$/,'');
+  shareToUrl(`https://${host}/share`,{text:getShareText()});
+});
+
+// Copy to clipboard
+document.getElementById('shareCopy').addEventListener('click',()=>{
+  const text=getShareText();
   if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(text).then(()=>showToast()).catch(()=>fallbackCopy(text));
+    navigator.clipboard.writeText(text).then(showToast).catch(()=>fallbackCopy(text));
   }else{
     fallbackCopy(text);
   }
@@ -517,7 +775,7 @@ document.getElementById('shareBtn').addEventListener('click',()=>{
 
 function fallbackCopy(text){
   const ta=document.createElement('textarea');
-  ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+  ta.value=text;ta.style.cssText='position:fixed;opacity:0';
   document.body.appendChild(ta);ta.select();
   try{document.execCommand('copy');showToast()}catch(e){}
   document.body.removeChild(ta);
@@ -526,12 +784,13 @@ function fallbackCopy(text){
 function showToast(){
   const t=document.getElementById('toast');
   t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2000);
+  setTimeout(()=>t.classList.remove('show'),2200);
 }
 
 /* Close modal on overlay click */
-document.getElementById('overlay').addEventListener('click',(e)=>{
-  if(e.target===document.getElementById('overlay'))document.getElementById('overlay').classList.remove('show');
+document.getElementById('overlay').addEventListener('click',e=>{
+  if(e.target===document.getElementById('overlay'))
+    document.getElementById('overlay').classList.remove('show');
 });
 
 /* ===== START ===== */
