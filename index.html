@@ -5,36 +5,35 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<title>Euskara Egunero</title>
+<title>Basque Match</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#f5f5f7;
+  --bg:#f2f5f3;
   --surface:#ffffff;
-  --border:#e5e5ea;
-  --border-light:#f0f0f3;
-  --correct:#34c759;
-  --correct-bg:#ecfaf0;
-  --correct-border:#b8e9c4;
-  --error:#ff3b30;
-  --error-bg:#fef0ef;
-  --error-border:#f5c6c3;
-  --accent:#1d1d1f;
-  --accent-secondary:#6e6e73;
-  --text:#1d1d1f;
-  --text-secondary:#86868b;
-  --text-tertiary:#aeaeb2;
-  --selected:#007aff;
-  --selected-bg:#eef4ff;
-  --selected-border:#bdd5fc;
-  --shadow-sm:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
-  --shadow-md:0 4px 16px rgba(0,0,0,.08);
-  --shadow-lg:0 12px 40px rgba(0,0,0,.12);
-  --radius:14px;
-  --radius-sm:10px;
-  --transition:.2s ease;
+  --border:#dfe5e0;
+  --border-light:#ebefec;
+  --green:#2EB553;
+  --green-dark:#259945;
+  --green-light:#e6f7eb;
+  --green-pale:#f0faf3;
+  --green-border:#b2e4c0;
+  --red:#E5483E;
+  --red-light:#fdf0ef;
+  --red-border:#f0bbb7;
+  --orange:#ff8c42;
+  --blue:#4a90d9;
+  --text:#1a2b1e;
+  --text-sec:#6b7d70;
+  --text-ter:#9aaa9f;
+  --shadow-sm:0 1px 4px rgba(30,60,40,.05);
+  --shadow-md:0 4px 20px rgba(30,60,40,.08);
+  --shadow-lg:0 10px 40px rgba(30,60,40,.14);
+  --r:16px;--rs:12px;--rx:10px;
+  --ease:.2s ease;
+  --nav-h:64px;
 }
 html{height:100%}
 body{
@@ -43,202 +42,387 @@ body{
   background:var(--bg);color:var(--text);
   overflow-x:hidden;-webkit-tap-highlight-color:transparent;
   touch-action:manipulation;display:flex;flex-direction:column;
+  padding-bottom:var(--nav-h);
 }
 
-/* ========== HEADER ========== */
-.header{
-  padding:20px 20px 0;display:flex;align-items:center;
-  justify-content:space-between;
+/* ==============================
+   BOTTOM NAVIGATION
+   ============================== */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);
+  background:var(--surface);border-top:1px solid var(--border-light);
+  display:flex;z-index:50;
+  padding-bottom:env(safe-area-inset-bottom,0);
 }
-.brand{display:flex;align-items:center;gap:10px}
-.brand-mark{
-  width:36px;height:36px;border-radius:10px;
-  background:var(--accent);color:#fff;
-  display:flex;align-items:center;justify-content:center;
-  font-weight:800;font-size:.9rem;letter-spacing:-.5px;
+.nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:3px;border:none;background:none;
+  font-family:inherit;font-size:.62rem;font-weight:600;
+  color:var(--text-ter);cursor:pointer;touch-action:manipulation;
+  transition:color var(--ease);padding:6px 0;
 }
-.brand h1{font-size:1.15rem;font-weight:700;color:var(--accent);letter-spacing:-.3px}
-.header-meta{
-  font-size:.75rem;font-weight:500;color:var(--text-tertiary);
-  letter-spacing:-.1px;
+.nav-item svg{width:22px;height:22px;transition:color var(--ease)}
+.nav-item.active{color:var(--green)}
+.nav-item.active .nav-dot{
+  width:4px;height:4px;border-radius:50%;background:var(--green);
+  position:absolute;bottom:8px;
+}
+.nav-item.active svg{color:var(--green)}
+
+/* Glossary active gets green bg circle */
+.nav-item.glossary-tab.active .nav-icon-wrap{
+  background:var(--green-light);border-radius:16px;padding:6px 14px;margin:-6px 0;
 }
 
-/* ========== LANG SELECTOR ========== */
-.lang-bar{display:flex;gap:6px;padding:16px 20px 0}
-.lang-btn{
-  flex:1;border:1.5px solid var(--border);background:var(--surface);
-  color:var(--text-secondary);font-family:inherit;
-  font-size:.8rem;font-weight:600;padding:9px 0;
-  border-radius:var(--radius-sm);cursor:pointer;
-  transition:var(--transition);touch-action:manipulation;
-}
-.lang-btn.active{
-  background:var(--accent);color:#fff;
-  border-color:var(--accent);
-}
+/* ==============================
+   SCREEN MANAGEMENT
+   ============================== */
+.screen{display:none;flex-direction:column;flex:1;min-height:0}
+.screen.active{display:flex}
 
-/* ========== STATUS BAR ========== */
-.status-bar{
-  display:flex;gap:8px;padding:12px 20px 0;
+/* ==============================
+   HOME SCREEN — HEADER
+   ============================== */
+.home-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px 10px;border-bottom:1px solid var(--border-light);
 }
+.home-header h1{font-size:1.2rem;font-weight:800;letter-spacing:-.4px}
+.lang-pills{
+  display:flex;align-items:center;
+  border:1.5px solid var(--border);border-radius:20px;
+  overflow:hidden;background:var(--surface);
+}
+.lang-pill{
+  padding:6px 12px;font-size:.72rem;font-weight:700;
+  border:none;background:none;color:var(--text-ter);
+  cursor:pointer;touch-action:manipulation;
+  font-family:inherit;transition:all var(--ease);
+  position:relative;
+}
+.lang-pill:not(:last-child)::after{
+  content:'';position:absolute;right:0;top:25%;height:50%;
+  width:1px;background:var(--border);
+}
+.lang-pill.active{
+  background:var(--text);color:#fff;border-radius:18px;
+  margin:2px;padding:5px 11px;
+}
+.lang-pill.active::after{display:none}
+.lang-pill.active+.lang-pill::after{display:none}
+
+/* ==============================
+   HOME — CHALLENGE BAR + PROGRESS
+   ============================== */
+.challenge-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px 6px;
+}
+.challenge-label{font-size:.92rem;font-weight:600;color:var(--text-sec)}
+.challenge-count{font-size:.88rem;font-weight:700;color:var(--green)}
+.progress-wrap{padding:0 18px 14px}
+.progress-bar{width:100%;height:6px;border-radius:3px;background:var(--border-light)}
+.progress-fill{height:100%;border-radius:3px;background:var(--green);transition:width .4s cubic-bezier(.4,0,.2,1)}
+
+/* ==============================
+   HOME — STAT CARDS
+   ============================== */
+.stat-row{display:flex;gap:10px;padding:0 14px 14px}
 .stat-card{
   flex:1;background:var(--surface);border:1px solid var(--border-light);
-  border-radius:var(--radius-sm);padding:10px 12px;
-  display:flex;flex-direction:column;gap:2px;
+  border-radius:var(--rs);padding:14px 10px;text-align:center;
+  box-shadow:var(--shadow-sm);
 }
-.stat-label{font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-tertiary)}
-.stat-value{font-size:1.1rem;font-weight:700;color:var(--accent);letter-spacing:-.3px}
+.stat-icon-wrap{
+  width:32px;height:32px;border-radius:8px;
+  display:inline-flex;align-items:center;justify-content:center;
+  margin-bottom:6px;
+}
+.stat-icon-wrap.streak{background:linear-gradient(135deg,#ffb347,#ff6b35)}
+.stat-icon-wrap.timer{background:linear-gradient(135deg,#64b5f6,#1e88e5)}
+.stat-icon-wrap svg{width:16px;height:16px;color:#fff}
+.stat-lbl{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--green)}
+.stat-val{font-size:1.5rem;font-weight:800;color:var(--text);line-height:1.2;letter-spacing:-.5px}
+.stat-sub{font-size:.62rem;font-weight:500;color:var(--text-ter)}
 
-/* ========== GAME BOARD ========== */
-.board{
-  flex:1;display:flex;gap:8px;padding:12px 12px 0;
-  overflow-y:auto;-webkit-overflow-scrolling:touch;
+/* ==============================
+   HOME — GAME BOARD CARD
+   ============================== */
+.board-card{
+  flex:1;margin:0 12px;background:var(--surface);
+  border-radius:var(--r);border:1px solid var(--border-light);
+  box-shadow:var(--shadow-sm);display:flex;flex-direction:column;
+  overflow:hidden;min-height:0;
 }
-.col{flex:1;display:flex;flex-direction:column;gap:6px}
-.col-header{
-  font-size:.65rem;font-weight:700;text-transform:uppercase;
-  letter-spacing:.8px;color:var(--text-tertiary);text-align:center;
-  padding:0 0 4px;
+.board-head{display:flex;border-bottom:1px solid var(--border-light)}
+.board-head-col{
+  flex:1;padding:10px;text-align:center;
+  font-size:.62rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.9px;color:var(--green);
 }
+.board-head-col+.board-head-col{border-left:1px solid var(--border-light)}
+.board-body{flex:1;display:flex;overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:0}
+.col{flex:1;display:flex;flex-direction:column;padding:5px}
+.col+.col{border-left:1px solid var(--border-light)}
+
+/* Tiles */
 .tile{
-  position:relative;padding:13px 8px;
-  background:var(--surface);
-  border:1.5px solid var(--border);
-  border-radius:var(--radius-sm);
-  text-align:center;font-size:.85rem;font-weight:600;
-  color:var(--text);letter-spacing:-.1px;
-  cursor:pointer;transition:all .2s ease;
+  position:relative;padding:11px 10px;margin:3px;
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:var(--rx);
+  font-size:.82rem;font-weight:600;color:var(--text);
+  cursor:pointer;transition:all .18s ease;
   user-select:none;touch-action:manipulation;
-  display:flex;align-items:center;justify-content:center;
-  min-height:46px;word-break:break-word;line-height:1.25;
+  display:flex;align-items:center;min-height:44px;
+  word-break:break-word;line-height:1.25;
 }
 .tile:active{transform:scale(.97)}
+.tile-text{flex:1}
+.tile-check{
+  width:22px;height:22px;border-radius:50%;flex-shrink:0;margin-left:6px;
+  background:var(--green);display:none;
+  align-items:center;justify-content:center;
+}
+.tile-check svg{width:12px;height:12px;color:#fff}
+
 .tile.selected{
-  border-color:var(--selected);background:var(--selected-bg);
-  color:var(--selected);box-shadow:0 0 0 3px rgba(0,122,255,.12);
+  border-color:var(--green);border-width:2px;padding:10px 9px;
+  background:var(--green-pale);
 }
 .tile.matched{
-  background:var(--correct-bg);border-color:var(--correct-border);
-  color:var(--correct);cursor:default;pointer-events:none;
+  background:var(--green-light);border-color:var(--green-border);
+  color:var(--green-dark);pointer-events:none;cursor:default;
 }
+.tile.matched .tile-check{display:flex}
 .tile.wrong{
-  background:var(--error-bg);border-color:var(--error-border);
-  color:var(--error);animation:shake .35s ease;
+  background:var(--red-light);border-color:var(--red-border);
+  color:var(--red);animation:shake .35s ease;
 }
-.tile.disabled{pointer-events:none;opacity:.4}
-
 @keyframes shake{
-  0%,100%{transform:translateX(0)}
-  25%{transform:translateX(-3px)}
-  75%{transform:translateX(3px)}
+  0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}
 }
 
-/* ========== PROGRESS BAR ========== */
-.progress-track{
-  display:flex;gap:4px;padding:10px 20px 16px;justify-content:center;
-}
-.pip{
-  width:100%;max-width:28px;height:4px;border-radius:2px;
-  background:var(--border);transition:background .3s ease;
-}
-.pip.ok{background:var(--correct)}
-.pip.miss{background:var(--error)}
+/* Hint below board */
+.hint-bar{text-align:center;padding:10px 18px 12px;font-size:.75rem;font-weight:500;color:var(--text-ter)}
 
-/* ========== COMPLETED STATE ========== */
-.completed-overlay{
-  position:absolute;inset:0;background:rgba(245,245,247,.85);
-  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+/* ==============================
+   GLOSSARY SCREEN
+   ============================== */
+.gloss-header{
+  padding:14px 18px 10px;display:flex;align-items:center;
+  justify-content:center;border-bottom:1px solid var(--border-light);
+  position:relative;
+}
+.gloss-header h2{font-size:1.15rem;font-weight:800;letter-spacing:-.3px}
+
+/* Search */
+.gloss-search-wrap{
+  padding:12px 16px 8px;
+}
+.gloss-search{
+  width:100%;padding:12px 14px 12px 40px;
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:var(--rs);font-family:inherit;font-size:.85rem;
+  font-weight:500;color:var(--text);outline:none;
+  transition:border-color var(--ease);
+}
+.gloss-search:focus{border-color:var(--green)}
+.gloss-search-wrap{position:relative}
+.gloss-search-icon{
+  position:absolute;left:28px;top:50%;transform:translateY(-50%);
+  width:18px;height:18px;color:var(--text-ter);pointer-events:none;
+}
+
+/* Filter chips */
+.gloss-filters{display:flex;gap:8px;padding:4px 16px 10px}
+.filter-chip{
+  padding:7px 16px;border-radius:20px;border:1.5px solid var(--border);
+  background:var(--surface);font-family:inherit;font-size:.78rem;
+  font-weight:600;color:var(--text-sec);cursor:pointer;
+  touch-action:manipulation;transition:all var(--ease);
+  display:flex;align-items:center;gap:5px;
+}
+.filter-chip.active{background:var(--text);color:#fff;border-color:var(--text)}
+.filter-chip svg{width:14px;height:14px}
+
+/* Word list */
+.gloss-list-wrap{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative;padding-right:22px}
+.alpha-header{
+  padding:8px 18px 4px;font-size:1rem;font-weight:800;color:var(--green);
+}
+.word-row{
+  display:flex;align-items:center;padding:14px 18px;
+  border-bottom:1px solid var(--border-light);
+}
+.word-info{flex:1;min-width:0}
+.word-eus{font-size:.95rem;font-weight:700;color:var(--text)}
+.word-trans{font-size:.8rem;font-weight:400;color:var(--text-sec);margin-top:1px}
+.word-type{
+  font-size:.58rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.5px;color:var(--text-ter);margin:0 8px;flex-shrink:0;
+}
+.word-mastered{
+  width:22px;height:22px;border-radius:50%;flex-shrink:0;
   display:flex;align-items:center;justify-content:center;
-  z-index:10;border-radius:var(--radius);
 }
-.completed-msg{
-  text-align:center;padding:20px;
-}
-.completed-msg p{font-size:.9rem;font-weight:600;color:var(--text);margin-bottom:4px}
-.completed-msg span{font-size:.8rem;color:var(--text-secondary)}
+.word-mastered.yes{color:var(--green)}
+.word-mastered.no{color:var(--border)}
+.word-mastered svg{width:18px;height:18px}
 
-/* ========== MODAL OVERLAY ========== */
+/* Alpha sidebar */
+.alpha-sidebar{
+  position:absolute;right:2px;top:0;bottom:0;
+  width:18px;display:flex;flex-direction:column;
+  justify-content:center;padding:4px 0;z-index:5;
+}
+.alpha-link{
+  font-size:.52rem;font-weight:700;color:var(--text-ter);
+  text-align:center;padding:1.5px 0;cursor:pointer;
+  touch-action:manipulation;
+}
+.alpha-link:active{color:var(--green)}
+
+/* ==============================
+   PLACEHOLDER SCREENS
+   ============================== */
+.placeholder-screen{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:12px;
+  padding:40px;text-align:center;
+}
+.placeholder-screen .ph-icon{
+  width:64px;height:64px;border-radius:20px;
+  background:var(--green-light);display:flex;
+  align-items:center;justify-content:center;
+}
+.placeholder-screen .ph-icon svg{width:28px;height:28px;color:var(--green)}
+.placeholder-screen h2{font-size:1.1rem;font-weight:800;letter-spacing:-.3px}
+.placeholder-screen p{font-size:.82rem;color:var(--text-sec);line-height:1.5}
+
+/* ==============================
+   RESULTS MODAL
+   ============================== */
 .overlay{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,.3);
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-  display:flex;align-items:flex-end;justify-content:center;
+  position:fixed;inset:0;background:rgba(26,43,30,.3);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  display:flex;align-items:center;justify-content:center;
   z-index:100;opacity:0;pointer-events:none;
-  transition:opacity .25s ease;
-  padding:0 0 env(safe-area-inset-bottom,0);
+  transition:opacity .25s ease;padding:20px;
 }
 .overlay.show{opacity:1;pointer-events:auto}
 .modal{
-  background:var(--surface);
-  border-radius:20px 20px 0 0;
-  padding:8px 24px 32px;max-width:480px;width:100%;
-  transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);
+  background:var(--surface);border-radius:var(--r);
+  max-width:380px;width:100%;overflow:hidden;
+  transform:scale(.92) translateY(20px);
+  transition:transform .35s cubic-bezier(.32,.72,0,1);
+  box-shadow:var(--shadow-lg);
 }
-.overlay.show .modal{transform:translateY(0)}
-.modal-handle{
-  width:36px;height:4px;border-radius:2px;
-  background:var(--border);margin:0 auto 20px;
+.overlay.show .modal{transform:scale(1) translateY(0)}
+
+.modal-top{
+  background:linear-gradient(135deg,#2EB553 0%,#5cd97a 100%);
+  padding:28px 24px 30px;text-align:center;position:relative;
 }
-
-.modal-title{font-size:1.3rem;font-weight:800;text-align:center;letter-spacing:-.4px;margin-bottom:2px}
-.modal-sub{font-size:.8rem;color:var(--text-secondary);text-align:center;font-weight:500;margin-bottom:20px}
-
-.result-grid{display:flex;gap:12px;margin-bottom:20px}
-.result-card{
-  flex:1;background:var(--bg);border-radius:var(--radius-sm);
-  padding:14px 8px;text-align:center;
+.modal-close{
+  position:absolute;top:12px;right:12px;
+  width:30px;height:30px;border-radius:50%;
+  background:rgba(255,255,255,.2);border:none;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;touch-action:manipulation;color:#fff;
 }
-.result-card .num{font-size:1.5rem;font-weight:800;color:var(--accent);letter-spacing:-.5px}
-.result-card .lbl{font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text-tertiary);margin-top:2px}
-
-.result-sequence{
-  display:flex;gap:3px;justify-content:center;margin-bottom:24px;
+.modal-close svg{width:14px;height:14px}
+.modal-celebration{
+  width:56px;height:56px;border-radius:50%;
+  background:rgba(255,255,255,.2);
+  display:inline-flex;align-items:center;justify-content:center;
+  margin-bottom:10px;
 }
-.seq-pip{width:20px;height:6px;border-radius:3px}
-.seq-pip.ok{background:var(--correct)}
-.seq-pip.miss{background:var(--error)}
+.modal-celebration svg{width:28px;height:28px;color:#fff}
+.modal-title{font-size:1.4rem;font-weight:800;color:#fff}
+.modal-sub{font-size:.78rem;font-weight:500;color:rgba(255,255,255,.85);margin-top:4px}
 
-/* Tomorrow countdown */
-.tomorrow-section{
-  text-align:center;padding:16px 0 20px;
-  border-top:1px solid var(--border-light);margin-bottom:4px;
+.modal-body{padding:20px}
+
+/* Result stat row */
+.res-row{display:flex;gap:8px;margin-bottom:14px}
+.res-card{
+  flex:1;background:var(--bg);border-radius:var(--rx);
+  padding:14px 6px;text-align:center;
 }
-.tomorrow-label{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-tertiary);margin-bottom:6px}
-.tomorrow-timer{font-size:1.6rem;font-weight:800;color:var(--accent);letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.res-card .ri{
+  width:26px;height:26px;border-radius:7px;
+  display:inline-flex;align-items:center;justify-content:center;
+  margin-bottom:5px;
+}
+.res-card .ri.time{background:linear-gradient(135deg,#64b5f6,#1e88e5)}
+.res-card .ri.streak{background:linear-gradient(135deg,#ffb347,#ff6b35)}
+.res-card .ri.pairs{background:linear-gradient(135deg,#2EB553,#5cd97a)}
+.res-card .ri svg{width:13px;height:13px;color:#fff}
+.res-card .rv{font-size:1.25rem;font-weight:800;color:var(--text);letter-spacing:-.3px}
+.res-card .rl{font-size:.58rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-ter);margin-top:2px}
 
-/* Share section */
-.share-section{margin-top:0}
-.share-label{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-tertiary);text-align:center;margin-bottom:10px}
+/* Sequence */
+.res-seq-box{
+  background:var(--bg);border-radius:var(--rx);
+  padding:14px 12px;text-align:center;margin-bottom:16px;
+}
+.res-seq{display:flex;gap:4px;justify-content:center;margin-bottom:8px}
+.sq{width:18px;height:18px;border-radius:4px}
+.sq.ok{background:var(--green)}
+.sq.miss{background:var(--red)}
+.res-puzzle{font-size:.7rem;font-weight:600;color:var(--text-ter)}
 
-.share-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+/* Countdown */
+.cd-section{
+  text-align:center;padding-bottom:16px;margin-bottom:16px;
+  border-bottom:1px solid var(--border-light);
+}
+.cd-lbl{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-ter);margin-bottom:6px}
+.cd-val{font-size:1.35rem;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums}
+
+/* Share main CTA */
+.share-cta{
+  width:100%;padding:14px;border:none;
+  background:var(--green);color:#fff;
+  font-family:inherit;font-size:.88rem;font-weight:700;
+  border-radius:var(--rs);cursor:pointer;
+  touch-action:manipulation;transition:all var(--ease);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-bottom:10px;
+}
+.share-cta:active{transform:scale(.98);background:var(--green-dark)}
+.share-cta svg{width:17px;height:17px}
+
+/* Share grid */
+.share-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}
 .share-btn{
-  display:flex;flex-direction:column;align-items:center;gap:5px;
-  padding:12px 4px;border:1.5px solid var(--border);
-  background:var(--surface);border-radius:var(--radius-sm);
-  cursor:pointer;transition:var(--transition);touch-action:manipulation;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:10px 4px;border:1px solid var(--border);
+  background:var(--surface);border-radius:var(--rx);
+  cursor:pointer;transition:all var(--ease);touch-action:manipulation;
   font-family:inherit;
 }
 .share-btn:active{transform:scale(.95);background:var(--bg)}
-.share-btn svg{width:22px;height:22px}
-.share-btn .s-label{font-size:.6rem;font-weight:600;color:var(--text-secondary);letter-spacing:-.1px}
+.share-btn svg{width:20px;height:20px}
+.share-btn .sl{font-size:.56rem;font-weight:600;color:var(--text-sec)}
 
-.share-copy{
-  width:100%;padding:13px;border:1.5px solid var(--border);
-  background:var(--bg);border-radius:var(--radius-sm);
-  font-family:inherit;font-size:.8rem;font-weight:600;
-  color:var(--text);cursor:pointer;transition:var(--transition);
+.share-copy-btn{
+  width:100%;padding:10px;border:1px solid var(--border);
+  background:var(--bg);border-radius:var(--rx);
+  font-family:inherit;font-size:.76rem;font-weight:600;
+  color:var(--text-sec);cursor:pointer;transition:all var(--ease);
   touch-action:manipulation;display:flex;align-items:center;
   justify-content:center;gap:6px;
 }
-.share-copy:active{transform:scale(.98);background:var(--border-light)}
-.share-copy svg{width:16px;height:16px;color:var(--text-secondary)}
+.share-copy-btn:active{transform:scale(.98)}
+.share-copy-btn svg{width:14px;height:14px}
 
 /* Toast */
 .toast{
-  position:fixed;top:60px;left:50%;transform:translateX(-50%) translateY(-20px);
-  background:var(--accent);color:#fff;
-  padding:10px 24px;border-radius:var(--radius-sm);
-  font-size:.82rem;font-weight:600;letter-spacing:-.1px;
+  position:fixed;top:50px;left:50%;transform:translateX(-50%) translateY(-14px);
+  background:var(--text);color:#fff;
+  padding:10px 22px;border-radius:var(--rx);
+  font-size:.8rem;font-weight:600;
   opacity:0;transition:all .3s ease;pointer-events:none;z-index:200;
   box-shadow:var(--shadow-lg);
 }
@@ -247,551 +431,576 @@ body{
 </head>
 <body>
 
-<!-- HEADER -->
-<div class="header">
-  <div class="brand">
-    <div class="brand-mark">EE</div>
-    <h1>Euskara Egunero</h1>
+<!-- ==================== HOME SCREEN ==================== -->
+<div class="screen active" id="screenHome">
+  <div class="home-header">
+    <h1>Basque Match</h1>
+    <div class="lang-pills" id="langPills">
+      <button class="lang-pill active" data-lang="es">ES</button>
+      <button class="lang-pill" data-lang="fr">FR</button>
+      <button class="lang-pill" data-lang="en">EN</button>
+    </div>
   </div>
-  <div class="header-meta" id="headerDate"></div>
+
+  <div class="challenge-row">
+    <div class="challenge-label">Daily Challenge</div>
+    <div class="challenge-count" id="matchLabel">0/10 Matches</div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-card">
+      <div class="stat-icon-wrap streak">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c.5 3.5 2 5.5 2 5.5s3-2 3.5-5C22 7 19.5 14 16 16c1 1.5 2 3.5 2 5H6c0-1.5 1-3.5 2-5C4.5 14 2 7 6.5 2.5 7 5.5 9 7.5 9 7.5S10.5 5.5 12 2z"/></svg>
+      </div>
+      <div class="stat-lbl">Streak</div>
+      <div class="stat-val" id="streakVal">0</div>
+      <div class="stat-sub">Days</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon-wrap timer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div class="stat-lbl">Time</div>
+      <div class="stat-val" id="timerVal">00:00</div>
+      <div class="stat-sub">Elapsed</div>
+    </div>
+  </div>
+
+  <div class="board-card">
+    <div class="board-head">
+      <div class="board-head-col">Basque</div>
+      <div class="board-head-col" id="colRightLabel">Spanish</div>
+    </div>
+    <div class="board-body">
+      <div class="col" id="colLeft"></div>
+      <div class="col" id="colRight"></div>
+    </div>
+  </div>
+
+  <div class="hint-bar" id="hintBar">Match all words to complete the day!</div>
 </div>
 
-<!-- LANGUAGE SELECTOR -->
-<div class="lang-bar" id="langBar">
-  <button class="lang-btn active" data-lang="es">Castellano</button>
-  <button class="lang-btn" data-lang="fr">Fran&ccedil;ais</button>
-  <button class="lang-btn" data-lang="en">English</button>
-</div>
-
-<!-- STATUS BAR -->
-<div class="status-bar">
-  <div class="stat-card">
-    <span class="stat-label">Racha</span>
-    <span class="stat-value" id="streakVal">0</span>
+<!-- ==================== GLOSSARY SCREEN ==================== -->
+<div class="screen" id="screenGlossary">
+  <div class="gloss-header">
+    <h2>Glossary</h2>
   </div>
-  <div class="stat-card">
-    <span class="stat-label">Tiempo</span>
-    <span class="stat-value" id="timerVal">00:00</span>
+  <div class="gloss-search-wrap">
+    <svg class="gloss-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input class="gloss-search" id="glossSearch" type="text" placeholder="Search 100 words...">
   </div>
-  <div class="stat-card">
-    <span class="stat-label">Errores</span>
-    <span class="stat-value" id="mistakeVal">0</span>
+  <div class="gloss-filters" id="glossFilters">
+    <button class="filter-chip active" data-filter="all">All</button>
+    <button class="filter-chip" data-filter="mastered">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#2EB553" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Mastered
+    </button>
+    <button class="filter-chip" data-filter="learning">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#ff8c42" stroke-width="2.5" stroke-linecap="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+      Learning
+    </button>
   </div>
-</div>
-
-<!-- GAME BOARD -->
-<div class="board" id="board" style="position:relative">
-  <div class="col">
-    <div class="col-header">Euskara</div>
-    <div id="colLeft"></div>
-  </div>
-  <div class="col">
-    <div class="col-header" id="colRightLabel">Castellano</div>
-    <div id="colRight"></div>
+  <div class="gloss-list-wrap" id="glossListWrap">
+    <div id="glossList"></div>
+    <div class="alpha-sidebar" id="alphaSidebar"></div>
   </div>
 </div>
 
-<!-- PROGRESS -->
-<div class="progress-track" id="progress"></div>
+<!-- ==================== STATS SCREEN (placeholder) ==================== -->
+<div class="screen" id="screenStats">
+  <div class="placeholder-screen">
+    <div class="ph-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    </div>
+    <h2>Stats Coming Soon</h2>
+    <p>Track your learning progress, completion times, and vocabulary mastery over time.</p>
+  </div>
+</div>
 
-<!-- WIN MODAL (bottom sheet) -->
+<!-- ==================== RANK SCREEN (placeholder) ==================== -->
+<div class="screen" id="screenRank">
+  <div class="placeholder-screen">
+    <div class="ph-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 010-5C7 4 7 7 7 7"/><path d="M18 9h1.5a2.5 2.5 0 000-5C17 4 17 7 17 7"/><path d="M4 22h16"/><path d="M10 22V8a4 4 0 014 0v14"/><path d="M8 22v-6"/><path d="M16 22v-6"/></svg>
+    </div>
+    <h2>Leaderboard Coming Soon</h2>
+    <p>Compete with other learners and see how you rank on the daily challenge.</p>
+  </div>
+</div>
+
+<!-- ==================== BOTTOM NAV ==================== -->
+<nav class="bottom-nav">
+  <button class="nav-item active" data-screen="screenHome">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Home
+  </button>
+  <button class="nav-item" data-screen="screenStats">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    Stats
+  </button>
+  <button class="nav-item" data-screen="screenRank">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 010-5C7 4 7 7 7 7"/><path d="M18 9h1.5a2.5 2.5 0 000-5C17 4 17 7 17 7"/><path d="M4 22h16"/><path d="M10 22V8a4 4 0 014 0v14"/><path d="M8 22v-6"/><path d="M16 22v-6"/></svg>
+    Rank
+  </button>
+  <button class="nav-item glossary-tab" data-screen="screenGlossary">
+    <span class="nav-icon-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+    </span>
+    Glossary
+  </button>
+</nav>
+
+<!-- ==================== RESULTS MODAL ==================== -->
 <div class="overlay" id="overlay">
   <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">Ondo egin!</div>
-    <div class="modal-sub">Has completado el reto de hoy</div>
-
-    <div class="result-grid">
-      <div class="result-card"><div class="num" id="mStreak">0</div><div class="lbl">Racha</div></div>
-      <div class="result-card"><div class="num" id="mTime">00:00</div><div class="lbl">Tiempo</div></div>
-      <div class="result-card"><div class="num" id="mMistakes">0</div><div class="lbl">Errores</div></div>
-    </div>
-
-    <div class="result-sequence" id="mSeq"></div>
-
-    <div class="tomorrow-section">
-      <div class="tomorrow-label">Siguiente reto en</div>
-      <div class="tomorrow-timer" id="countdown">--:--:--</div>
-    </div>
-
-    <div class="share-section">
-      <div class="share-label">Compartir resultado</div>
-      <div class="share-grid">
-        <button class="share-btn" id="shareX" aria-label="Compartir en X">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-          <span class="s-label">X</span>
-        </button>
-        <button class="share-btn" id="shareFB" aria-label="Compartir en Facebook">
-          <svg viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-          <span class="s-label">Facebook</span>
-        </button>
-        <button class="share-btn" id="shareWA" aria-label="Compartir en WhatsApp">
-          <svg viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-          <span class="s-label">WhatsApp</span>
-        </button>
-        <button class="share-btn" id="shareMD" aria-label="Compartir en Mastodon">
-          <svg viewBox="0 0 24 24" fill="#6364FF"><path d="M23.268 5.313c-.35-2.578-2.617-4.61-5.304-5.004C17.51.242 15.792 0 11.813 0h-.03c-3.98 0-4.835.242-5.288.309C3.882.692 1.496 2.518.917 5.127.64 6.412.61 7.837.661 9.143c.074 1.874.088 3.745.26 5.611.118 1.24.325 2.47.62 3.68.55 2.237 2.777 4.098 4.96 4.857 2.336.792 4.849.923 7.256.38.265-.061.527-.132.786-.213.585-.184 1.27-.39 1.774-.753a.057.057 0 00.023-.043v-1.809a.052.052 0 00-.02-.041.053.053 0 00-.046-.01 20.282 20.282 0 01-4.709.547c-2.73 0-3.463-1.284-3.674-1.818a5.593 5.593 0 01-.319-1.433.053.053 0 01.066-.054 19.648 19.648 0 004.581.536h.344c1.587 0 3.176-.088 4.748-.345 1.607-.263 3.099-.744 3.455-3.308.014-.1.025-.207.036-.307.088-.794.168-1.616.168-2.42 0-.741-.025-1.027-.036-1.442zM19.43 12.17h-2.67v5.423c0 1.143-.475 1.724-1.424 1.724-.85 0-1.275-.585-1.275-1.724V9.42h-2.65v5.398c0 1.14-.425 1.724-1.276 1.724-.948 0-1.424-.581-1.424-1.724V9.42H6.042v5.63c0 1.14.29 2.048.87 2.72.593.683 1.37 1.031 2.334 1.031 1.116 0 1.962-.43 2.525-1.289l.544-.909.544.91c.563.858 1.41 1.288 2.525 1.288.964 0 1.74-.348 2.334-1.03.58-.673.87-1.58.87-2.72V9.42c.002-.548-.003-.917-.158-1.25z"/></svg>
-          <span class="s-label">Mastodon</span>
-        </button>
+    <div class="modal-top">
+      <button class="modal-close" id="modalClose">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="modal-celebration">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
       </div>
-      <button class="share-copy" id="shareCopy">
+      <div class="modal-title">Zorionak!</div>
+      <div class="modal-sub">You've mastered today's vocabulary</div>
+    </div>
+    <div class="modal-body">
+      <div class="res-row">
+        <div class="res-card">
+          <div class="ri time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div class="rv" id="mTime">00:00</div>
+          <div class="rl">Time</div>
+        </div>
+        <div class="res-card">
+          <div class="ri streak"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c.5 3.5 2 5.5 2 5.5s3-2 3.5-5C22 7 19.5 14 16 16c1 1.5 2 3.5 2 5H6c0-1.5 1-3.5 2-5C4.5 14 2 7 6.5 2.5 7 5.5 9 7.5 9 7.5S10.5 5.5 12 2z"/></svg></div>
+          <div class="rv" id="mStreak">0</div>
+          <div class="rl">Days</div>
+        </div>
+        <div class="res-card">
+          <div class="ri pairs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="rv" id="mPairs">10/10</div>
+          <div class="rl">Pairs</div>
+        </div>
+      </div>
+
+      <div class="res-seq-box">
+        <div class="res-seq" id="mSeq"></div>
+        <div class="res-puzzle" id="mPuzzle"></div>
+      </div>
+
+      <div class="cd-section">
+        <div class="cd-lbl">Next challenge in</div>
+        <div class="cd-val" id="countdown">--:--:--</div>
+      </div>
+
+      <button class="share-cta" id="shareMainBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        Share Result
+      </button>
+      <div class="share-grid">
+        <button class="share-btn" id="shareX"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span class="sl">X</span></button>
+        <button class="share-btn" id="shareFB"><svg viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg><span class="sl">Facebook</span></button>
+        <button class="share-btn" id="shareWA"><svg viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg><span class="sl">WhatsApp</span></button>
+        <button class="share-btn" id="shareMD"><svg viewBox="0 0 24 24" fill="#6364FF"><path d="M23.268 5.313c-.35-2.578-2.617-4.61-5.304-5.004C17.51.242 15.792 0 11.813 0h-.03c-3.98 0-4.835.242-5.288.309C3.882.692 1.496 2.518.917 5.127.64 6.412.61 7.837.661 9.143c.074 1.874.088 3.745.26 5.611.118 1.24.325 2.47.62 3.68.55 2.237 2.777 4.098 4.96 4.857 2.336.792 4.849.923 7.256.38.265-.061.527-.132.786-.213.585-.184 1.27-.39 1.774-.753a.057.057 0 00.023-.043v-1.809a.052.052 0 00-.02-.041.053.053 0 00-.046-.01 20.282 20.282 0 01-4.709.547c-2.73 0-3.463-1.284-3.674-1.818a5.593 5.593 0 01-.319-1.433.053.053 0 01.066-.054 19.648 19.648 0 004.581.536h.344c1.587 0 3.176-.088 4.748-.345 1.607-.263 3.099-.744 3.455-3.308.014-.1.025-.207.036-.307.088-.794.168-1.616.168-2.42 0-.741-.025-1.027-.036-1.442zM19.43 12.17h-2.67v5.423c0 1.143-.475 1.724-1.424 1.724-.85 0-1.275-.585-1.275-1.724V9.42h-2.65v5.398c0 1.14-.425 1.724-1.276 1.724-.948 0-1.424-.581-1.424-1.724V9.42H6.042v5.63c0 1.14.29 2.048.87 2.72.593.683 1.37 1.031 2.334 1.031 1.116 0 1.962-.43 2.525-1.289l.544-.909.544.91c.563.858 1.41 1.288 2.525 1.288.964 0 1.74-.348 2.334-1.03.58-.673.87-1.58.87-2.72V9.42c.002-.548-.003-.917-.158-1.25z"/></svg><span class="sl">Mastodon</span></button>
+      </div>
+      <button class="share-copy-btn" id="shareCopy">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-        Copiar resultado
+        Copy to clipboard
       </button>
     </div>
   </div>
 </div>
 
-<div class="toast" id="toast">Copiado al portapapeles</div>
+<div class="toast" id="toast">Copied to clipboard</div>
 
 <script>
-/* ===== 100 BASQUE WORDS / PHRASES ===== */
+/* ========================================================
+   DATASET — 100 Basque words with type annotations
+   ======================================================== */
 const WORDS=[
-{eus:"kaixo",es:"hola",fr:"bonjour",en:"hello"},
-{eus:"agur",es:"adiós",fr:"au revoir",en:"goodbye"},
-{eus:"eskerrik asko",es:"muchas gracias",fr:"merci beaucoup",en:"thank you very much"},
-{eus:"bai",es:"sí",fr:"oui",en:"yes"},
-{eus:"ez",es:"no",fr:"non",en:"no"},
-{eus:"mesedez",es:"por favor",fr:"s'il vous plaît",en:"please"},
-{eus:"barkatu",es:"perdón",fr:"pardon",en:"sorry"},
-{eus:"egun on",es:"buenos días",fr:"bonjour",en:"good morning"},
-{eus:"arratsalde on",es:"buenas tardes",fr:"bonsoir",en:"good afternoon"},
-{eus:"gabon",es:"buenas noches",fr:"bonne nuit",en:"good night"},
-{eus:"etxea",es:"casa",fr:"maison",en:"house"},
-{eus:"ura",es:"agua",fr:"eau",en:"water"},
-{eus:"ogia",es:"pan",fr:"pain",en:"bread"},
-{eus:"sagarra",es:"manzana",fr:"pomme",en:"apple"},
-{eus:"ardoa",es:"vino",fr:"vin",en:"wine"},
-{eus:"kafea",es:"café",fr:"café",en:"coffee"},
-{eus:"esnea",es:"leche",fr:"lait",en:"milk"},
-{eus:"arraina",es:"pescado",fr:"poisson",en:"fish"},
-{eus:"haragia",es:"carne",fr:"viande",en:"meat"},
-{eus:"gazta",es:"queso",fr:"fromage",en:"cheese"},
-{eus:"txakurra",es:"perro",fr:"chien",en:"dog"},
-{eus:"katua",es:"gato",fr:"chat",en:"cat"},
-{eus:"txoria",es:"pájaro",fr:"oiseau",en:"bird"},
-{eus:"zuhaitza",es:"árbol",fr:"arbre",en:"tree"},
-{eus:"lorea",es:"flor",fr:"fleur",en:"flower"},
-{eus:"eguzkia",es:"sol",fr:"soleil",en:"sun"},
-{eus:"ilargia",es:"luna",fr:"lune",en:"moon"},
-{eus:"izarra",es:"estrella",fr:"étoile",en:"star"},
-{eus:"mendia",es:"montaña",fr:"montagne",en:"mountain"},
-{eus:"itsasoa",es:"mar",fr:"mer",en:"sea"},
-{eus:"ibaia",es:"río",fr:"rivière",en:"river"},
-{eus:"bidea",es:"camino",fr:"chemin",en:"road"},
-{eus:"herria",es:"pueblo",fr:"village",en:"town"},
-{eus:"hiria",es:"ciudad",fr:"ville",en:"city"},
-{eus:"eskola",es:"escuela",fr:"école",en:"school"},
-{eus:"liburua",es:"libro",fr:"livre",en:"book"},
-{eus:"laguna",es:"amigo",fr:"ami",en:"friend"},
-{eus:"familia",es:"familia",fr:"famille",en:"family"},
-{eus:"amak",es:"madre",fr:"mère",en:"mother"},
-{eus:"aitak",es:"padre",fr:"père",en:"father"},
-{eus:"umea",es:"niño",fr:"enfant",en:"child"},
-{eus:"gizona",es:"hombre",fr:"homme",en:"man"},
-{eus:"emakumea",es:"mujer",fr:"femme",en:"woman"},
-{eus:"jakatea",es:"comida",fr:"nourriture",en:"food"},
-{eus:"gosea",es:"hambre",fr:"faim",en:"hunger"},
-{eus:"egarria",es:"sed",fr:"soif",en:"thirst"},
-{eus:"loa",es:"sueño",fr:"sommeil",en:"sleep"},
-{eus:"lana",es:"trabajo",fr:"travail",en:"work"},
-{eus:"dirua",es:"dinero",fr:"argent",en:"money"},
-{eus:"denbora",es:"tiempo",fr:"temps",en:"time"},
-{eus:"eguna",es:"día",fr:"jour",en:"day"},
-{eus:"gaua",es:"noche",fr:"nuit",en:"night"},
-{eus:"astea",es:"semana",fr:"semaine",en:"week"},
-{eus:"hemen",es:"aquí",fr:"ici",en:"here"},
-{eus:"han",es:"allí",fr:"là-bas",en:"there"},
-{eus:"gaur",es:"hoy",fr:"aujourd'hui",en:"today"},
-{eus:"bihar",es:"mañana",fr:"demain",en:"tomorrow"},
-{eus:"atzo",es:"ayer",fr:"hier",en:"yesterday"},
-{eus:"beroa",es:"calor",fr:"chaleur",en:"heat"},
-{eus:"hotza",es:"frío",fr:"froid",en:"cold"},
-{eus:"euria",es:"lluvia",fr:"pluie",en:"rain"},
-{eus:"elurra",es:"nieve",fr:"neige",en:"snow"},
-{eus:"haizea",es:"viento",fr:"vent",en:"wind"},
-{eus:"zerua",es:"cielo",fr:"ciel",en:"sky"},
-{eus:"lurra",es:"tierra",fr:"terre",en:"earth"},
-{eus:"sua",es:"fuego",fr:"feu",en:"fire"},
-{eus:"gorria",es:"rojo",fr:"rouge",en:"red"},
-{eus:"urdina",es:"azul",fr:"bleu",en:"blue"},
-{eus:"berdea",es:"verde",fr:"vert",en:"green"},
-{eus:"zuria",es:"blanco",fr:"blanc",en:"white"},
-{eus:"beltza",es:"negro",fr:"noir",en:"black"},
-{eus:"horia",es:"amarillo",fr:"jaune",en:"yellow"},
-{eus:"handia",es:"grande",fr:"grand",en:"big"},
-{eus:"txikia",es:"pequeño",fr:"petit",en:"small"},
-{eus:"ona",es:"bueno",fr:"bon",en:"good"},
-{eus:"txarra",es:"malo",fr:"mauvais",en:"bad"},
-{eus:"polita",es:"bonito",fr:"joli",en:"pretty"},
-{eus:"zaharra",es:"viejo",fr:"vieux",en:"old"},
-{eus:"berria",es:"nuevo",fr:"nouveau",en:"new"},
-{eus:"azkar",es:"rápido",fr:"rapide",en:"fast"},
-{eus:"poliki",es:"despacio",fr:"lentement",en:"slowly"},
-{eus:"jan",es:"comer",fr:"manger",en:"to eat"},
-{eus:"edan",es:"beber",fr:"boire",en:"to drink"},
-{eus:"hitz egin",es:"hablar",fr:"parler",en:"to speak"},
-{eus:"ikusi",es:"ver",fr:"voir",en:"to see"},
-{eus:"entzun",es:"escuchar",fr:"écouter",en:"to listen"},
-{eus:"joan",es:"ir",fr:"aller",en:"to go"},
-{eus:"etorri",es:"venir",fr:"venir",en:"to come"},
-{eus:"egin",es:"hacer",fr:"faire",en:"to do"},
-{eus:"jakin",es:"saber",fr:"savoir",en:"to know"},
-{eus:"nahi",es:"querer",fr:"vouloir",en:"to want"},
-{eus:"maite zaitut",es:"te quiero",fr:"je t'aime",en:"I love you"},
-{eus:"zer da hau?",es:"¿qué es esto?",fr:"qu'est-ce que c'est ?",en:"what is this?"},
-{eus:"non dago?",es:"¿dónde está?",fr:"où est-ce ?",en:"where is it?"},
-{eus:"zenbat da?",es:"¿cuánto es?",fr:"combien ça coûte ?",en:"how much is it?"},
-{eus:"zer moduz?",es:"¿qué tal?",fr:"comment ça va ?",en:"how are you?"},
-{eus:"ongi etorri",es:"bienvenido",fr:"bienvenue",en:"welcome"},
-{eus:"zorte on",es:"buena suerte",fr:"bonne chance",en:"good luck"},
-{eus:"ondo izan",es:"cuídate",fr:"prends soin de toi",en:"take care"},
-{eus:"ikasi",es:"aprender",fr:"apprendre",en:"to learn"}
+{eus:"agur",es:"adiós",fr:"au revoir",en:"goodbye",type:"INTERJ"},
+{eus:"aitak",es:"padre",fr:"père",en:"father",type:"NOUN"},
+{eus:"amak",es:"madre",fr:"mère",en:"mother",type:"NOUN"},
+{eus:"ardoa",es:"vino",fr:"vin",en:"wine",type:"NOUN"},
+{eus:"arraina",es:"pescado",fr:"poisson",en:"fish",type:"NOUN"},
+{eus:"arratsalde on",es:"buenas tardes",fr:"bonsoir",en:"good afternoon",type:"PHRASE"},
+{eus:"astea",es:"semana",fr:"semaine",en:"week",type:"NOUN"},
+{eus:"atzo",es:"ayer",fr:"hier",en:"yesterday",type:"ADV"},
+{eus:"azkar",es:"rápido",fr:"rapide",en:"fast",type:"ADJ"},
+{eus:"bai",es:"sí",fr:"oui",en:"yes",type:"PART"},
+{eus:"barkatu",es:"perdón",fr:"pardon",en:"sorry",type:"VERB"},
+{eus:"beltza",es:"negro",fr:"noir",en:"black",type:"ADJ"},
+{eus:"berdea",es:"verde",fr:"vert",en:"green",type:"ADJ"},
+{eus:"beroa",es:"calor",fr:"chaleur",en:"heat",type:"NOUN"},
+{eus:"berria",es:"nuevo",fr:"nouveau",en:"new",type:"ADJ"},
+{eus:"bidea",es:"camino",fr:"chemin",en:"road",type:"NOUN"},
+{eus:"bihar",es:"mañana",fr:"demain",en:"tomorrow",type:"ADV"},
+{eus:"denbora",es:"tiempo",fr:"temps",en:"time",type:"NOUN"},
+{eus:"dirua",es:"dinero",fr:"argent",en:"money",type:"NOUN"},
+{eus:"edan",es:"beber",fr:"boire",en:"to drink",type:"VERB"},
+{eus:"egarria",es:"sed",fr:"soif",en:"thirst",type:"NOUN"},
+{eus:"egin",es:"hacer",fr:"faire",en:"to do",type:"VERB"},
+{eus:"eguzkia",es:"sol",fr:"soleil",en:"sun",type:"NOUN"},
+{eus:"eguna",es:"día",fr:"jour",en:"day",type:"NOUN"},
+{eus:"egun on",es:"buenos días",fr:"bonjour",en:"good morning",type:"PHRASE"},
+{eus:"elurra",es:"nieve",fr:"neige",en:"snow",type:"NOUN"},
+{eus:"emakumea",es:"mujer",fr:"femme",en:"woman",type:"NOUN"},
+{eus:"entzun",es:"escuchar",fr:"écouter",en:"to listen",type:"VERB"},
+{eus:"eskola",es:"escuela",fr:"école",en:"school",type:"NOUN"},
+{eus:"eskerrik asko",es:"muchas gracias",fr:"merci beaucoup",en:"thank you very much",type:"PHRASE"},
+{eus:"esnea",es:"leche",fr:"lait",en:"milk",type:"NOUN"},
+{eus:"etorri",es:"venir",fr:"venir",en:"to come",type:"VERB"},
+{eus:"etxea",es:"casa",fr:"maison",en:"house",type:"NOUN"},
+{eus:"euria",es:"lluvia",fr:"pluie",en:"rain",type:"NOUN"},
+{eus:"ez",es:"no",fr:"non",en:"no",type:"PART"},
+{eus:"familia",es:"familia",fr:"famille",en:"family",type:"NOUN"},
+{eus:"gabon",es:"buenas noches",fr:"bonne nuit",en:"good night",type:"PHRASE"},
+{eus:"gaua",es:"noche",fr:"nuit",en:"night",type:"NOUN"},
+{eus:"gaur",es:"hoy",fr:"aujourd'hui",en:"today",type:"ADV"},
+{eus:"gazta",es:"queso",fr:"fromage",en:"cheese",type:"NOUN"},
+{eus:"gizona",es:"hombre",fr:"homme",en:"man",type:"NOUN"},
+{eus:"gorria",es:"rojo",fr:"rouge",en:"red",type:"ADJ"},
+{eus:"gosea",es:"hambre",fr:"faim",en:"hunger",type:"NOUN"},
+{eus:"haizea",es:"viento",fr:"vent",en:"wind",type:"NOUN"},
+{eus:"han",es:"allí",fr:"là-bas",en:"there",type:"ADV"},
+{eus:"handia",es:"grande",fr:"grand",en:"big",type:"ADJ"},
+{eus:"haragia",es:"carne",fr:"viande",en:"meat",type:"NOUN"},
+{eus:"hemen",es:"aquí",fr:"ici",en:"here",type:"ADV"},
+{eus:"herria",es:"pueblo",fr:"village",en:"town",type:"NOUN"},
+{eus:"hiria",es:"ciudad",fr:"ville",en:"city",type:"NOUN"},
+{eus:"hitz egin",es:"hablar",fr:"parler",en:"to speak",type:"VERB"},
+{eus:"horia",es:"amarillo",fr:"jaune",en:"yellow",type:"ADJ"},
+{eus:"hotza",es:"frío",fr:"froid",en:"cold",type:"NOUN"},
+{eus:"ibaia",es:"río",fr:"rivière",en:"river",type:"NOUN"},
+{eus:"ikasi",es:"aprender",fr:"apprendre",en:"to learn",type:"VERB"},
+{eus:"ikusi",es:"ver",fr:"voir",en:"to see",type:"VERB"},
+{eus:"ilargia",es:"luna",fr:"lune",en:"moon",type:"NOUN"},
+{eus:"itsasoa",es:"mar",fr:"mer",en:"sea",type:"NOUN"},
+{eus:"izarra",es:"estrella",fr:"étoile",en:"star",type:"NOUN"},
+{eus:"jakatea",es:"comida",fr:"nourriture",en:"food",type:"NOUN"},
+{eus:"jakin",es:"saber",fr:"savoir",en:"to know",type:"VERB"},
+{eus:"jan",es:"comer",fr:"manger",en:"to eat",type:"VERB"},
+{eus:"joan",es:"ir",fr:"aller",en:"to go",type:"VERB"},
+{eus:"kafea",es:"café",fr:"café",en:"coffee",type:"NOUN"},
+{eus:"kaixo",es:"hola",fr:"bonjour",en:"hello",type:"INTERJ"},
+{eus:"katua",es:"gato",fr:"chat",en:"cat",type:"NOUN"},
+{eus:"laguna",es:"amigo",fr:"ami",en:"friend",type:"NOUN"},
+{eus:"lana",es:"trabajo",fr:"travail",en:"work",type:"NOUN"},
+{eus:"liburua",es:"libro",fr:"livre",en:"book",type:"NOUN"},
+{eus:"loa",es:"sueño",fr:"sommeil",en:"sleep",type:"NOUN"},
+{eus:"lorea",es:"flor",fr:"fleur",en:"flower",type:"NOUN"},
+{eus:"lurra",es:"tierra",fr:"terre",en:"earth",type:"NOUN"},
+{eus:"maite zaitut",es:"te quiero",fr:"je t'aime",en:"I love you",type:"PHRASE"},
+{eus:"mendia",es:"montaña",fr:"montagne",en:"mountain",type:"NOUN"},
+{eus:"mesedez",es:"por favor",fr:"s'il vous plaît",en:"please",type:"ADV"},
+{eus:"nahi",es:"querer",fr:"vouloir",en:"to want",type:"VERB"},
+{eus:"non dago?",es:"¿dónde está?",fr:"où est-ce ?",en:"where is it?",type:"PHRASE"},
+{eus:"ogia",es:"pan",fr:"pain",en:"bread",type:"NOUN"},
+{eus:"ona",es:"bueno",fr:"bon",en:"good",type:"ADJ"},
+{eus:"ondo izan",es:"cuídate",fr:"prends soin de toi",en:"take care",type:"PHRASE"},
+{eus:"ongi etorri",es:"bienvenido",fr:"bienvenue",en:"welcome",type:"PHRASE"},
+{eus:"poliki",es:"despacio",fr:"lentement",en:"slowly",type:"ADV"},
+{eus:"polita",es:"bonito",fr:"joli",en:"pretty",type:"ADJ"},
+{eus:"sagarra",es:"manzana",fr:"pomme",en:"apple",type:"NOUN"},
+{eus:"sua",es:"fuego",fr:"feu",en:"fire",type:"NOUN"},
+{eus:"txakurra",es:"perro",fr:"chien",en:"dog",type:"NOUN"},
+{eus:"txarra",es:"malo",fr:"mauvais",en:"bad",type:"ADJ"},
+{eus:"txikia",es:"pequeño",fr:"petit",en:"small",type:"ADJ"},
+{eus:"txoria",es:"pájaro",fr:"oiseau",en:"bird",type:"NOUN"},
+{eus:"umea",es:"niño",fr:"enfant",en:"child",type:"NOUN"},
+{eus:"ura",es:"agua",fr:"eau",en:"water",type:"NOUN"},
+{eus:"urdina",es:"azul",fr:"bleu",en:"blue",type:"ADJ"},
+{eus:"zaharra",es:"viejo",fr:"vieux",en:"old",type:"ADJ"},
+{eus:"zenbat da?",es:"¿cuánto es?",fr:"combien ça coûte ?",en:"how much is it?",type:"PHRASE"},
+{eus:"zer da hau?",es:"¿qué es esto?",fr:"qu'est-ce que c'est ?",en:"what is this?",type:"PHRASE"},
+{eus:"zer moduz?",es:"¿qué tal?",fr:"comment ça va ?",en:"how are you?",type:"PHRASE"},
+{eus:"zerua",es:"cielo",fr:"ciel",en:"sky",type:"NOUN"},
+{eus:"zorte on",es:"buena suerte",fr:"bonne chance",en:"good luck",type:"PHRASE"},
+{eus:"zuhaitza",es:"árbol",fr:"arbre",en:"tree",type:"NOUN"},
+{eus:"zuria",es:"blanco",fr:"blanc",en:"white",type:"ADJ"}
 ];
 
-const LANG_LABELS={es:'Castellano',fr:'Français',en:'English'};
+const LANG_COL={es:'Spanish',fr:'French',en:'English'};
+const EPOCH=new Date('2025-01-01');
 
-/* ===== SEEDED PRNG (Mulberry32) ===== */
+/* ===== PRNG ===== */
 function seedFromDate(){
   const d=new Date();
   const s=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-  let h=0;
-  for(let i=0;i<s.length;i++){h=Math.imul(31,h)+s.charCodeAt(i)|0}
+  let h=0;for(let i=0;i<s.length;i++){h=Math.imul(31,h)+s.charCodeAt(i)|0}
   return h>>>0;
 }
 function mulberry32(a){
   return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
 }
-
-/* ===== GAME STATE ===== */
-let lang='es';
-let dailyItems=[];
-let rng;
-let selectedLeft=null;
-let selectedRight=null;
-let locked=false;
-let matchCount=0;
-let mistakes=0;
-let timerStarted=false;
-let timerInterval=null;
-let seconds=0;
-let sequence=[];
-let alreadyCompleted=false;
-const TODAY_KEY='ee_today';
-
-/* ===== INIT ===== */
-function init(){
-  const seed=seedFromDate();
-  rng=mulberry32(seed);
-
-  const pool=[...Array(WORDS.length).keys()];
-  for(let i=pool.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
-  dailyItems=pool.slice(0,10).map(i=>WORDS[i]);
-
-  renderDateHeader();
-  checkTodayState();
-  loadStreak();
-  renderBoard();
-  renderProgress();
-  setupLangButtons();
-  startCountdown();
+function getPuzzleNumber(){
+  const now=new Date(),today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  return Math.floor((today-EPOCH)/86400000)+1;
 }
-
 function getDateStr(){
   const d=new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
-function renderDateHeader(){
-  const d=new Date();
-  const opts={day:'numeric',month:'short',year:'numeric'};
-  document.getElementById('headerDate').textContent=d.toLocaleDateString('es-ES',opts);
+/* ===== GAME STATE ===== */
+let lang='es',dailyItems=[],rng;
+let selectedLeft=null,selectedRight=null,locked=false;
+let matchCount=0,mistakes=0,timerStarted=false,timerInterval=null,seconds=0;
+let sequence=[],alreadyCompleted=false;
+const TODAY_KEY='bm_today';
+const CHK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>';
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function fmt(s){const m=Math.floor(s/60),sec=s%60;return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`}
+
+/* ===== INIT ===== */
+function init(){
+  const seed=seedFromDate();rng=mulberry32(seed);
+  const pool=[...Array(WORDS.length).keys()];
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
+  dailyItems=pool.slice(0,10).map(i=>WORDS[i]);
+  checkToday();loadStreak();renderBoard();updateProgress();
+  setupLang();setupNav();setupGlossary();startCountdown();
 }
 
-function checkTodayState(){
+function checkToday(){
   try{
-    const saved=JSON.parse(localStorage.getItem(TODAY_KEY));
-    if(saved&&saved.date===getDateStr()&&saved.completed){
-      matchCount=10;mistakes=saved.mistakes||0;seconds=saved.seconds||0;
-      sequence=saved.sequence||[];
-      timerStarted=true;alreadyCompleted=true;
-      document.getElementById('timerVal').textContent=formatTime(seconds);
-      document.getElementById('mistakeVal').textContent=mistakes;
+    const s=JSON.parse(localStorage.getItem(TODAY_KEY));
+    if(s&&s.date===getDateStr()&&s.completed){
+      matchCount=10;mistakes=s.mistakes||0;seconds=s.seconds||0;
+      sequence=s.sequence||[];timerStarted=true;alreadyCompleted=true;
+      document.getElementById('timerVal').textContent=fmt(seconds);
       setTimeout(()=>showWinModal(),500);
     }
   }catch(e){}
 }
 
-/* ===== RENDER ===== */
+/* ===== RENDER BOARD ===== */
 function renderBoard(){
-  const leftCol=document.getElementById('colLeft');
-  const rightCol=document.getElementById('colRight');
-  leftCol.innerHTML='';rightCol.innerHTML='';
-  document.getElementById('colRightLabel').textContent=LANG_LABELS[lang];
-
-  dailyItems.forEach((item,i)=>{
-    leftCol.appendChild(makeTile(item.eus,i,'left'));
-  });
-
-  const rightOrder=dailyItems.map((item,i)=>({text:item[lang],idx:i}));
-  const seed=seedFromDate();
-  const rng2=mulberry32(seed);
-  for(let i=0;i<100;i++) rng2();
-  for(let i=rightOrder.length-1;i>0;i--){const j=Math.floor(rng2()*(i+1));[rightOrder[i],rightOrder[j]]=[rightOrder[j],rightOrder[i]]}
-
-  rightOrder.forEach(obj=>{
-    rightCol.appendChild(makeTile(obj.text,obj.idx,'right'));
-  });
-
-  if(matchCount===10){
-    document.querySelectorAll('.tile').forEach(t=>t.classList.add('matched'));
-  }
+  const L=document.getElementById('colLeft'),R=document.getElementById('colRight');
+  L.innerHTML='';R.innerHTML='';
+  document.getElementById('colRightLabel').textContent=LANG_COL[lang];
+  dailyItems.forEach((w,i)=>L.appendChild(mkTile(w.eus,i,'left')));
+  const ro=dailyItems.map((w,i)=>({t:w[lang],i}));
+  const seed=seedFromDate(),rng2=mulberry32(seed);
+  for(let i=0;i<100;i++)rng2();
+  for(let i=ro.length-1;i>0;i--){const j=Math.floor(rng2()*(i+1));[ro[i],ro[j]]=[ro[j],ro[i]]}
+  ro.forEach(o=>R.appendChild(mkTile(o.t,o.i,'right')));
+  if(matchCount===10)document.querySelectorAll('.tile').forEach(t=>t.classList.add('matched'));
+  updateProgress();
+}
+function mkTile(text,idx,side){
+  const d=document.createElement('div');d.className='tile';
+  d.dataset.idx=idx;d.dataset.side=side;
+  d.innerHTML=`<span class="tile-text">${esc(text)}</span><span class="tile-check">${CHK}</span>`;
+  d.addEventListener('click',()=>onTile(d));return d;
+}
+function updateProgress(){
+  document.getElementById('matchLabel').textContent=`${matchCount}/10 Matches`;
+  document.getElementById('progressFill').style.width=`${matchCount*10}%`;
+  if(alreadyCompleted) document.getElementById('hintBar').textContent='Come back tomorrow for a new challenge';
 }
 
-function makeTile(text,idx,side){
-  const d=document.createElement('div');
-  d.className='tile';
-  d.textContent=text;
-  d.dataset.idx=idx;
-  d.dataset.side=side;
-  d.addEventListener('click',()=>onTileClick(d));
-  return d;
-}
-
-function renderProgress(){
-  const c=document.getElementById('progress');
-  c.innerHTML='';
-  for(let i=0;i<10;i++){
-    const pip=document.createElement('div');
-    pip.className='pip';
-    if(i<sequence.length) pip.classList.add(sequence[i]==='ok'?'ok':'miss');
-    c.appendChild(pip);
-  }
-}
-
-/* ===== LANGUAGE SWITCH ===== */
-function setupLangButtons(){
-  document.querySelectorAll('.lang-btn').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      if(btn.dataset.lang===lang) return;
-      document.querySelector('.lang-btn.active').classList.remove('active');
-      btn.classList.add('active');
-      lang=btn.dataset.lang;
+/* ===== LANG ===== */
+function setupLang(){
+  document.querySelectorAll('.lang-pill').forEach(b=>{
+    b.addEventListener('click',()=>{
+      if(b.dataset.lang===lang)return;
+      document.querySelector('.lang-pill.active').classList.remove('active');
+      b.classList.add('active');lang=b.dataset.lang;
       selectedLeft=null;selectedRight=null;
-      clearSelections();
-      renderBoard();
+      document.querySelectorAll('.tile.selected').forEach(t=>t.classList.remove('selected'));
+      renderBoard();renderGlossList();
     });
   });
 }
 
 /* ===== TIMER ===== */
 function startTimer(){
-  if(timerStarted) return;
-  timerStarted=true;
-  timerInterval=setInterval(()=>{
-    seconds++;
-    document.getElementById('timerVal').textContent=formatTime(seconds);
-  },1000);
+  if(timerStarted)return;timerStarted=true;
+  timerInterval=setInterval(()=>{seconds++;document.getElementById('timerVal').textContent=fmt(seconds)},1000);
 }
 function stopTimer(){clearInterval(timerInterval)}
-function formatTime(s){
-  const m=Math.floor(s/60);
-  const sec=s%60;
-  return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
-}
 
-/* ===== COUNTDOWN TO NEXT DAY ===== */
-function startCountdown(){
-  updateCountdown();
-  setInterval(updateCountdown,1000);
-}
-function updateCountdown(){
-  const el=document.getElementById('countdown');
-  if(!el) return;
-  const now=new Date();
-  const tomorrow=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1);
-  const diff=tomorrow-now;
-  const h=Math.floor(diff/3600000);
-  const m=Math.floor((diff%3600000)/60000);
-  const s=Math.floor((diff%60000)/1000);
-  el.textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+/* ===== COUNTDOWN ===== */
+function startCountdown(){updateCD();setInterval(updateCD,1000)}
+function updateCD(){
+  const el=document.getElementById('countdown');if(!el)return;
+  const now=new Date(),tom=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1),d=tom-now;
+  el.textContent=`${String(Math.floor(d/36e5)).padStart(2,'0')}:${String(Math.floor(d%36e5/6e4)).padStart(2,'0')}:${String(Math.floor(d%6e4/1e3)).padStart(2,'0')}`;
 }
 
 /* ===== STREAK ===== */
 function loadStreak(){
-  try{
-    const data=JSON.parse(localStorage.getItem('ee_streak'));
-    if(data){
-      const last=new Date(data.lastDate);
-      const now=new Date();
-      const diff=Math.floor((now-last)/(86400000));
-      if(diff>1) data.count=0;
-      document.getElementById('streakVal').textContent=data.count;
-    }
-  }catch(e){}
+  try{const d=JSON.parse(localStorage.getItem('bm_streak'));
+  if(d){if(Math.floor((new Date()-new Date(d.lastDate))/864e5)>1)d.count=0;
+  document.getElementById('streakVal').textContent=d.count}}catch(e){}
 }
-function incrementStreak(){
-  let data={count:0,lastDate:''};
-  try{const saved=JSON.parse(localStorage.getItem('ee_streak'));if(saved)data=saved}catch(e){}
-  const today=getDateStr();
-  if(data.lastDate===today) return data.count;
-  const last=new Date(data.lastDate);
-  const now=new Date(today);
-  const diff=Math.floor((now-last)/86400000);
-  data.count=(diff===1)?data.count+1:1;
-  data.lastDate=today;
-  localStorage.setItem('ee_streak',JSON.stringify(data));
-  document.getElementById('streakVal').textContent=data.count;
-  return data.count;
+function incStreak(){
+  let d={count:0,lastDate:''};
+  try{const s=JSON.parse(localStorage.getItem('bm_streak'));if(s)d=s}catch(e){}
+  const today=getDateStr();if(d.lastDate===today)return d.count;
+  const diff=Math.floor((new Date(today)-new Date(d.lastDate))/864e5);
+  d.count=(diff===1)?d.count+1:1;d.lastDate=today;
+  localStorage.setItem('bm_streak',JSON.stringify(d));
+  document.getElementById('streakVal').textContent=d.count;return d.count;
 }
 
 /* ===== GAME LOGIC ===== */
-function onTileClick(tile){
-  if(locked||tile.classList.contains('matched')) return;
+function onTile(tile){
+  if(locked||tile.classList.contains('matched'))return;
   startTimer();
-
   const side=tile.dataset.side;
   if(side==='left'){
-    if(selectedLeft) selectedLeft.classList.remove('selected');
+    if(selectedLeft)selectedLeft.classList.remove('selected');
     if(selectedLeft===tile){selectedLeft=null;return}
     selectedLeft=tile;tile.classList.add('selected');
   }else{
-    if(selectedRight) selectedRight.classList.remove('selected');
+    if(selectedRight)selectedRight.classList.remove('selected');
     if(selectedRight===tile){selectedRight=null;return}
     selectedRight=tile;tile.classList.add('selected');
   }
-
   if(selectedLeft&&selectedRight){
     locked=true;
-    const lIdx=parseInt(selectedLeft.dataset.idx);
-    const rIdx=parseInt(selectedRight.dataset.idx);
-
-    if(lIdx===rIdx){
-      selectedLeft.classList.add('matched');
-      selectedRight.classList.add('matched');
-      selectedLeft.classList.remove('selected');
-      selectedRight.classList.remove('selected');
-      matchCount++;sequence.push('ok');renderProgress();
+    const li=+selectedLeft.dataset.idx,ri=+selectedRight.dataset.idx;
+    if(li===ri){
+      selectedLeft.classList.add('matched');selectedRight.classList.add('matched');
+      selectedLeft.classList.remove('selected');selectedRight.classList.remove('selected');
+      matchCount++;sequence.push('ok');updateProgress();markWordMastered(li);
       selectedLeft=null;selectedRight=null;locked=false;
-      if(matchCount===10) onWin();
+      if(matchCount===10)onWin();
     }else{
       mistakes++;sequence.push('miss');
-      document.getElementById('mistakeVal').textContent=mistakes;
-      renderProgress();
-      selectedLeft.classList.add('wrong');
-      selectedRight.classList.add('wrong');
+      selectedLeft.classList.add('wrong');selectedRight.classList.add('wrong');
       const sl=selectedLeft,sr=selectedRight;
-      setTimeout(()=>{
-        sl.classList.remove('wrong','selected');
-        sr.classList.remove('wrong','selected');
-        selectedLeft=null;selectedRight=null;locked=false;
-      },500);
+      setTimeout(()=>{sl.classList.remove('wrong','selected');sr.classList.remove('wrong','selected');selectedLeft=null;selectedRight=null;locked=false},500);
     }
   }
 }
 
-function clearSelections(){
-  document.querySelectorAll('.tile.selected').forEach(t=>t.classList.remove('selected'));
-}
-
-/* ===== WIN STATE ===== */
+/* ===== WIN ===== */
 function onWin(){
-  stopTimer();
-  incrementStreak();
-  try{
-    localStorage.setItem(TODAY_KEY,JSON.stringify({
-      date:getDateStr(),completed:true,mistakes,seconds,sequence
-    }));
-  }catch(e){}
-  alreadyCompleted=true;
-  setTimeout(()=>showWinModal(),500);
+  stopTimer();incStreak();
+  try{localStorage.setItem(TODAY_KEY,JSON.stringify({date:getDateStr(),completed:true,mistakes,seconds,sequence}))}catch(e){}
+  alreadyCompleted=true;updateProgress();
+  setTimeout(showWinModal,500);
 }
-
 function showWinModal(){
-  let streak=0;
-  try{const d=JSON.parse(localStorage.getItem('ee_streak'));if(d)streak=d.count}catch(e){}
+  let streak=0;try{const d=JSON.parse(localStorage.getItem('bm_streak'));if(d)streak=d.count}catch(e){}
   document.getElementById('mStreak').textContent=streak;
-  document.getElementById('mTime').textContent=formatTime(seconds);
-  document.getElementById('mMistakes').textContent=mistakes;
-
-  const seqContainer=document.getElementById('mSeq');
-  seqContainer.innerHTML='';
-  sequence.forEach(s=>{
-    const pip=document.createElement('div');
-    pip.className='seq-pip '+(s==='ok'?'ok':'miss');
-    seqContainer.appendChild(pip);
-  });
-
+  document.getElementById('mTime').textContent=fmt(seconds);
+  document.getElementById('mPairs').textContent='10/10';
+  const sc=document.getElementById('mSeq');sc.innerHTML='';
+  sequence.forEach(s=>{const e=document.createElement('div');e.className='sq '+(s==='ok'?'ok':'miss');sc.appendChild(e)});
+  document.getElementById('mPuzzle').textContent=`Basque Match #${getPuzzleNumber()} \u00B7 ${fmt(seconds)}`;
   document.getElementById('overlay').classList.add('show');
 }
 
-/* ===== SHARE HELPERS ===== */
-function getShareText(){
-  let streak=0;
-  try{const d=JSON.parse(localStorage.getItem('ee_streak'));if(d)streak=d.count}catch(e){}
-  const blocks=sequence.map(s=>s==='ok'?'\u2588':'\u2591').join('');
-  return `Euskara Egunero ${getDateStr()}\nRacha: ${streak} | Tiempo: ${formatTime(seconds)} | Errores: ${mistakes}\n${blocks}`;
+/* ===== MASTERED TRACKING ===== */
+function getMastered(){try{return JSON.parse(localStorage.getItem('bm_mastered'))||{}}catch(e){return{}}}
+function markWordMastered(dailyIdx){
+  const w=dailyItems[dailyIdx];if(!w)return;
+  const m=getMastered();m[w.eus]=true;
+  try{localStorage.setItem('bm_mastered',JSON.stringify(m))}catch(e){}
 }
 
-function shareToUrl(baseUrl,params){
-  const url=new URL(baseUrl);
-  Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,v));
-  window.open(url.toString(),'_blank','noopener,noreferrer');
+/* ===== NAVIGATION ===== */
+function setupNav(){
+  document.querySelectorAll('.nav-item').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelector('.nav-item.active').classList.remove('active');
+      btn.classList.add('active');
+      document.querySelector('.screen.active').classList.remove('active');
+      document.getElementById(btn.dataset.screen).classList.add('active');
+    });
+  });
 }
 
-// X (Twitter)
-document.getElementById('shareX').addEventListener('click',()=>{
-  shareToUrl('https://x.com/intent/tweet',{text:getShareText()});
-});
+/* ===== GLOSSARY ===== */
+let glossFilter='all';
+function setupGlossary(){
+  renderGlossList();buildAlphaSidebar();
+  document.getElementById('glossSearch').addEventListener('input',renderGlossList);
+  document.querySelectorAll('#glossFilters .filter-chip').forEach(c=>{
+    c.addEventListener('click',()=>{
+      document.querySelector('#glossFilters .filter-chip.active').classList.remove('active');
+      c.classList.add('active');glossFilter=c.dataset.filter;renderGlossList();
+    });
+  });
+}
+function renderGlossList(){
+  const q=(document.getElementById('glossSearch').value||'').toLowerCase().trim();
+  const mastered=getMastered();
+  let filtered=WORDS.filter(w=>{
+    if(q&&!w.eus.toLowerCase().includes(q)&&!w[lang].toLowerCase().includes(q))return false;
+    if(glossFilter==='mastered'&&!mastered[w.eus])return false;
+    if(glossFilter==='learning'&&mastered[w.eus])return false;
+    return true;
+  });
+  // Already sorted alphabetically in the array
+  const container=document.getElementById('glossList');
+  container.innerHTML='';
+  let lastLetter='';
+  filtered.forEach(w=>{
+    const letter=w.eus[0].toUpperCase();
+    if(letter!==lastLetter){
+      lastLetter=letter;
+      const h=document.createElement('div');h.className='alpha-header';h.id='alpha-'+letter;
+      h.textContent=letter;container.appendChild(h);
+    }
+    const row=document.createElement('div');row.className='word-row';
+    const isMastered=!!mastered[w.eus];
+    row.innerHTML=`<div class="word-info"><div class="word-eus">${esc(w.eus)}</div><div class="word-trans">${esc(w[lang])}</div></div><span class="word-type">${w.type}</span><div class="word-mastered ${isMastered?'yes':'no'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>`;
+    container.appendChild(row);
+  });
+}
+function buildAlphaSidebar(){
+  const sb=document.getElementById('alphaSidebar');sb.innerHTML='';
+  const letters=new Set(WORDS.map(w=>w.eus[0].toUpperCase()));
+  [...letters].sort().forEach(l=>{
+    const a=document.createElement('div');a.className='alpha-link';a.textContent=l;
+    a.addEventListener('click',()=>{
+      const el=document.getElementById('alpha-'+l);
+      if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+    });
+    sb.appendChild(a);
+  });
+}
 
-// Facebook
-document.getElementById('shareFB').addEventListener('click',()=>{
-  const text=getShareText();
-  shareToUrl('https://www.facebook.com/sharer/sharer.php',{quote:text});
+/* ===== SHARE ===== */
+function shareText(){
+  let streak=0;try{const d=JSON.parse(localStorage.getItem('bm_streak'));if(d)streak=d.count}catch(e){}
+  const sq=sequence.map(s=>s==='ok'?'\u{1F7E9}':'\u{1F7E5}').join('');
+  return `Basque Match #${getPuzzleNumber()}\nStreak: ${streak} | Time: ${fmt(seconds)} | Errors: ${mistakes}\n${sq}`;
+}
+function shareTo(base,params){
+  const u=new URL(base);Object.entries(params).forEach(([k,v])=>u.searchParams.set(k,v));
+  window.open(u.toString(),'_blank','noopener,noreferrer');
+}
+document.getElementById('shareMainBtn').addEventListener('click',()=>{
+  const t=shareText();
+  if(navigator.share)navigator.share({text:t}).catch(()=>{});
+  else clipCopy(t);
 });
-
-// WhatsApp
-document.getElementById('shareWA').addEventListener('click',()=>{
-  shareToUrl('https://api.whatsapp.com/send',{text:getShareText()});
-});
-
-// Mastodon — prompt for instance
+document.getElementById('shareX').addEventListener('click',()=>shareTo('https://x.com/intent/tweet',{text:shareText()}));
+document.getElementById('shareFB').addEventListener('click',()=>shareTo('https://www.facebook.com/sharer/sharer.php',{quote:shareText()}));
+document.getElementById('shareWA').addEventListener('click',()=>shareTo('https://api.whatsapp.com/send',{text:shareText()}));
 document.getElementById('shareMD').addEventListener('click',()=>{
-  const instance=prompt('Tu instancia de Mastodon (ej: mastodon.social):');
-  if(!instance) return;
-  const host=instance.replace(/^https?:\/\//,'').replace(/\/$/,'');
-  shareToUrl(`https://${host}/share`,{text:getShareText()});
+  const inst=prompt('Your Mastodon instance (e.g. mastodon.social):');
+  if(!inst)return;shareTo(`https://${inst.replace(/^https?:\/\//,'').replace(/\/$/,'')}/share`,{text:shareText()});
 });
-
-// Copy to clipboard
-document.getElementById('shareCopy').addEventListener('click',()=>{
-  const text=getShareText();
-  if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(text).then(showToast).catch(()=>fallbackCopy(text));
-  }else{
-    fallbackCopy(text);
-  }
-});
-
-function fallbackCopy(text){
-  const ta=document.createElement('textarea');
-  ta.value=text;ta.style.cssText='position:fixed;opacity:0';
-  document.body.appendChild(ta);ta.select();
-  try{document.execCommand('copy');showToast()}catch(e){}
-  document.body.removeChild(ta);
+document.getElementById('shareCopy').addEventListener('click',()=>clipCopy(shareText()));
+function clipCopy(t){
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(showToast).catch(()=>fbCopy(t));
+  else fbCopy(t);
 }
+function fbCopy(t){const a=document.createElement('textarea');a.value=t;a.style.cssText='position:fixed;opacity:0';document.body.appendChild(a);a.select();try{document.execCommand('copy');showToast()}catch(e){}document.body.removeChild(a)}
+function showToast(){const t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
 
-function showToast(){
-  const t=document.getElementById('toast');
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2200);
-}
-
-/* Close modal on overlay click */
-document.getElementById('overlay').addEventListener('click',e=>{
-  if(e.target===document.getElementById('overlay'))
-    document.getElementById('overlay').classList.remove('show');
-});
+/* Modal close */
+document.getElementById('modalClose').addEventListener('click',()=>document.getElementById('overlay').classList.remove('show'));
+document.getElementById('overlay').addEventListener('click',e=>{if(e.target===document.getElementById('overlay'))document.getElementById('overlay').classList.remove('show')});
 
 /* ===== START ===== */
 init();
