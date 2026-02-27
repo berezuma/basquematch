@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="eu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Euskara Egunero</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--surface:#1a1d27;--card:#252836;--card-hover:#2e3245;
+  --green:#00c853;--green-bg:rgba(0,200,83,.15);
+  --red:#ff1744;--red-bg:rgba(255,23,68,.15);
+  --accent:#7c4dff;--accent-light:#b388ff;
+  --text:#e8eaed;--text-dim:#9aa0a6;
+  --radius:12px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+}
+html,body{height:100%;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+body{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
+
+/* Header */
+.header{text-align:center;padding:16px 12px 8px;background:linear-gradient(180deg,rgba(124,77,255,.12) 0%,transparent 100%)}
+.header h1{font-size:1.6rem;font-weight:800;letter-spacing:-.5px;background:linear-gradient(135deg,var(--accent-light),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.header .subtitle{font-size:.75rem;color:var(--text-dim);margin-top:2px;letter-spacing:1px;text-transform:uppercase}
+
+/* Language Selector */
+.lang-bar{display:flex;justify-content:center;gap:8px;padding:10px 16px}
+.lang-btn{border:none;background:var(--card);color:var(--text-dim);font-size:.85rem;font-weight:600;padding:8px 20px;border-radius:999px;cursor:pointer;transition:var(--transition);touch-action:manipulation}
+.lang-btn.active{background:var(--accent);color:#fff;box-shadow:0 2px 12px rgba(124,77,255,.35)}
+
+/* Status Bar */
+.status-bar{display:flex;justify-content:space-between;align-items:center;padding:8px 16px;margin:4px 12px;background:var(--surface);border-radius:var(--radius)}
+.stat{display:flex;align-items:center;gap:6px;font-size:.85rem;font-weight:600}
+.stat .icon{font-size:1.1rem}
+.stat .val{color:var(--accent-light)}
+
+/* Game Board */
+.board{flex:1;display:flex;gap:10px;padding:10px 12px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.col{flex:1;display:flex;flex-direction:column;gap:8px}
+.tile{
+  position:relative;padding:14px 10px;background:var(--card);border:2px solid transparent;
+  border-radius:var(--radius);text-align:center;font-size:.92rem;font-weight:600;
+  cursor:pointer;transition:var(--transition);user-select:none;touch-action:manipulation;
+  display:flex;align-items:center;justify-content:center;min-height:48px;
+  word-break:break-word;line-height:1.25
+}
+.tile:active{transform:scale(.96)}
+.tile.selected{border-color:var(--accent);background:var(--card-hover);box-shadow:0 0 16px rgba(124,77,255,.2)}
+.tile.matched{background:var(--green-bg);border-color:var(--green);color:var(--green);cursor:default;pointer-events:none}
+.tile.wrong{background:var(--red-bg);border-color:var(--red);color:var(--red);animation:shake .4s ease}
+.tile.disabled{pointer-events:none;opacity:.5}
+
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-4px)}40%,80%{transform:translateX(4px)}}
+
+/* Progress dots */
+.progress{display:flex;justify-content:center;gap:6px;padding:8px 0 12px}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--card);transition:var(--transition)}
+.dot.done{background:var(--green)}
+.dot.fail{background:var(--red)}
+
+/* Modal Overlay */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:100;opacity:0;pointer-events:none;transition:opacity .3s ease}
+.overlay.show{opacity:1;pointer-events:auto}
+.modal{background:var(--surface);border-radius:20px;padding:28px 24px;max-width:340px;width:90%;text-align:center;transform:scale(.9);transition:transform .3s ease}
+.overlay.show .modal{transform:scale(1)}
+.modal h2{font-size:1.5rem;margin-bottom:4px}
+.modal .emoji{font-size:2.8rem;margin:10px 0}
+.modal .stats-row{display:flex;justify-content:center;gap:20px;margin:16px 0}
+.modal .stats-row div{display:flex;flex-direction:column;align-items:center}
+.modal .stats-row .num{font-size:1.6rem;font-weight:800;color:var(--accent-light)}
+.modal .stats-row .lbl{font-size:.7rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px}
+.modal .sequence{font-size:1rem;letter-spacing:2px;margin:10px 0;word-break:break-all}
+.share-btn{
+  display:inline-flex;align-items:center;gap:8px;margin-top:16px;padding:14px 32px;
+  background:var(--accent);color:#fff;font-size:1rem;font-weight:700;
+  border:none;border-radius:999px;cursor:pointer;transition:var(--transition);touch-action:manipulation
+}
+.share-btn:active{transform:scale(.96);background:var(--accent-light)}
+.copied-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:10px 24px;border-radius:999px;font-weight:600;font-size:.9rem;opacity:0;transition:opacity .3s;pointer-events:none;z-index:200}
+.copied-toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Euskara Egunero</h1>
+  <div class="subtitle">Eguneko 10 hitz &middot; Daily 10 words</div>
+</div>
+
+<div class="lang-bar" id="langBar">
+  <button class="lang-btn active" data-lang="es">ES</button>
+  <button class="lang-btn" data-lang="fr">FR</button>
+  <button class="lang-btn" data-lang="en">EN</button>
+</div>
+
+<div class="status-bar">
+  <div class="stat"><span class="icon">&#x1F525;</span><span id="streakVal" class="val">0</span></div>
+  <div class="stat"><span class="icon">&#x23F1;&#xFE0F;</span><span id="timerVal" class="val">00:00</span></div>
+  <div class="stat"><span class="icon">&#x274C;</span><span id="mistakeVal" class="val">0</span></div>
+</div>
+
+<div class="board" id="board">
+  <div class="col" id="colLeft"></div>
+  <div class="col" id="colRight"></div>
+</div>
+
+<div class="progress" id="progress"></div>
+
+<!-- Win Modal -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="emoji">&#x1F389;</div>
+    <h2>Zorionak!</h2>
+    <p style="color:var(--text-dim);font-size:.85rem;margin-bottom:4px">Congratulations!</p>
+    <div class="stats-row">
+      <div><span class="num" id="mStreak">0</span><span class="lbl">Streak</span></div>
+      <div><span class="num" id="mTime">0:00</span><span class="lbl">Time</span></div>
+      <div><span class="num" id="mMistakes">0</span><span class="lbl">Mistakes</span></div>
+    </div>
+    <div class="sequence" id="mSeq"></div>
+    <button class="share-btn" id="shareBtn">&#x1F4CB; Share Result</button>
+  </div>
+</div>
+
+<div class="copied-toast" id="toast">Copied to clipboard!</div>
+
+<script>
+/* ===== 100 BASQUE WORDS / PHRASES ===== */
+const WORDS=[
+{eus:"kaixo",es:"hola",fr:"bonjour",en:"hello"},
+{eus:"agur",es:"adiós",fr:"au revoir",en:"goodbye"},
+{eus:"eskerrik asko",es:"muchas gracias",fr:"merci beaucoup",en:"thank you very much"},
+{eus:"bai",es:"sí",fr:"oui",en:"yes"},
+{eus:"ez",es:"no",fr:"non",en:"no"},
+{eus:"mesedez",es:"por favor",fr:"s'il vous plaît",en:"please"},
+{eus:"barkatu",es:"perdón",fr:"pardon",en:"sorry"},
+{eus:"egun on",es:"buenos días",fr:"bonjour",en:"good morning"},
+{eus:"arratsalde on",es:"buenas tardes",fr:"bonsoir",en:"good afternoon"},
+{eus:"gabon",es:"buenas noches",fr:"bonne nuit",en:"good night"},
+{eus:"etxea",es:"casa",fr:"maison",en:"house"},
+{eus:"ura",es:"agua",fr:"eau",en:"water"},
+{eus:"ogia",es:"pan",fr:"pain",en:"bread"},
+{eus:"sagarra",es:"manzana",fr:"pomme",en:"apple"},
+{eus:"ardoa",es:"vino",fr:"vin",en:"wine"},
+{eus:"kafea",es:"café",fr:"café",en:"coffee"},
+{eus:"esnea",es:"leche",fr:"lait",en:"milk"},
+{eus:"arraina",es:"pescado",fr:"poisson",en:"fish"},
+{eus:"haragia",es:"carne",fr:"viande",en:"meat"},
+{eus:"gazta",es:"queso",fr:"fromage",en:"cheese"},
+{eus:"txakurra",es:"perro",fr:"chien",en:"dog"},
+{eus:"katua",es:"gato",fr:"chat",en:"cat"},
+{eus:"txoria",es:"pájaro",fr:"oiseau",en:"bird"},
+{eus:"zuhaitza",es:"árbol",fr:"arbre",en:"tree"},
+{eus:"lorea",es:"flor",fr:"fleur",en:"flower"},
+{eus:"eguzkia",es:"sol",fr:"soleil",en:"sun"},
+{eus:"ilargia",es:"luna",fr:"lune",en:"moon"},
+{eus:"izarra",es:"estrella",fr:"étoile",en:"star"},
+{eus:"mendia",es:"montaña",fr:"montagne",en:"mountain"},
+{eus:"itsasoa",es:"mar",fr:"mer",en:"sea"},
+{eus:"ibaia",es:"río",fr:"rivière",en:"river"},
+{eus:"bidea",es:"camino",fr:"chemin",en:"road"},
+{eus:"herria",es:"pueblo",fr:"village",en:"town"},
+{eus:"hiria",es:"ciudad",fr:"ville",en:"city"},
+{eus:"eskola",es:"escuela",fr:"école",en:"school"},
+{eus:"liburua",es:"libro",fr:"livre",en:"book"},
+{eus:"laguna",es:"amigo",fr:"ami",en:"friend"},
+{eus:"familia",es:"familia",fr:"famille",en:"family"},
+{eus:"amak",es:"madre",fr:"mère",en:"mother"},
+{eus:"aitak",es:"padre",fr:"père",en:"father"},
+{eus:"umea",es:"niño",fr:"enfant",en:"child"},
+{eus:"gizona",es:"hombre",fr:"homme",en:"man"},
+{eus:"emakumea",es:"mujer",fr:"femme",en:"woman"},
+{eus:"jakatea",es:"comida",fr:"nourriture",en:"food"},
+{eus:"gosea",es:"hambre",fr:"faim",en:"hunger"},
+{eus:"egarria",es:"sed",fr:"soif",en:"thirst"},
+{eus:"loa",es:"sueño",fr:"sommeil",en:"sleep"},
+{eus:"lana",es:"trabajo",fr:"travail",en:"work"},
+{eus:"dirua",es:"dinero",fr:"argent",en:"money"},
+{eus:"denbora",es:"tiempo",fr:"temps",en:"time"},
+{eus:"eguna",es:"día",fr:"jour",en:"day"},
+{eus:"gaua",es:"noche",fr:"nuit",en:"night"},
+{eus:"astea",es:"semana",fr:"semaine",en:"week"},
+{eus:"hemen",es:"aquí",fr:"ici",en:"here"},
+{eus:"han",es:"allí",fr:"là-bas",en:"there"},
+{eus:"gaur",es:"hoy",fr:"aujourd'hui",en:"today"},
+{eus:"bihar",es:"mañana",fr:"demain",en:"tomorrow"},
+{eus:"atzo",es:"ayer",fr:"hier",en:"yesterday"},
+{eus:"beroa",es:"calor",fr:"chaleur",en:"heat"},
+{eus:"hotza",es:"frío",fr:"froid",en:"cold"},
+{eus:"euria",es:"lluvia",fr:"pluie",en:"rain"},
+{eus:"elurra",es:"nieve",fr:"neige",en:"snow"},
+{eus:"haizea",es:"viento",fr:"vent",en:"wind"},
+{eus:"zerua",es:"cielo",fr:"ciel",en:"sky"},
+{eus:"lurra",es:"tierra",fr:"terre",en:"earth"},
+{eus:"sua",es:"fuego",fr:"feu",en:"fire"},
+{eus:"gorria",es:"rojo",fr:"rouge",en:"red"},
+{eus:"urdina",es:"azul",fr:"bleu",en:"blue"},
+{eus:"berdea",es:"verde",fr:"vert",en:"green"},
+{eus:"zuria",es:"blanco",fr:"blanc",en:"white"},
+{eus:"beltza",es:"negro",fr:"noir",en:"black"},
+{eus:"horia",es:"amarillo",fr:"jaune",en:"yellow"},
+{eus:"handia",es:"grande",fr:"grand",en:"big"},
+{eus:"txikia",es:"pequeño",fr:"petit",en:"small"},
+{eus:"ona",es:"bueno",fr:"bon",en:"good"},
+{eus:"txarra",es:"malo",fr:"mauvais",en:"bad"},
+{eus:"polita",es:"bonito",fr:"joli",en:"pretty"},
+{eus:"zaharra",es:"viejo",fr:"vieux",en:"old"},
+{eus:"berria",es:"nuevo",fr:"nouveau",en:"new"},
+{eus:"azkar",es:"rápido",fr:"rapide",en:"fast"},
+{eus:"poliki",es:"despacio",fr:"lentement",en:"slowly"},
+{eus:"jan",es:"comer",fr:"manger",en:"to eat"},
+{eus:"edan",es:"beber",fr:"boire",en:"to drink"},
+{eus:"hitz egin",es:"hablar",fr:"parler",en:"to speak"},
+{eus:"ikusi",es:"ver",fr:"voir",en:"to see"},
+{eus:"entzun",es:"escuchar",fr:"écouter",en:"to listen"},
+{eus:"joan",es:"ir",fr:"aller",en:"to go"},
+{eus:"etorri",es:"venir",fr:"venir",en:"to come"},
+{eus:"egin",es:"hacer",fr:"faire",en:"to do"},
+{eus:"jakin",es:"saber",fr:"savoir",en:"to know"},
+{eus:"nahi",es:"querer",fr:"vouloir",en:"to want"},
+{eus:"maite zaitut",es:"te quiero",fr:"je t'aime",en:"I love you"},
+{eus:"zer da hau?",es:"¿qué es esto?",fr:"qu'est-ce que c'est ?",en:"what is this?"},
+{eus:"non dago?",es:"¿dónde está?",fr:"où est-ce ?",en:"where is it?"},
+{eus:"zenbat da?",es:"¿cuánto es?",fr:"combien ça coûte ?",en:"how much is it?"},
+{eus:"zer moduz?",es:"¿qué tal?",fr:"comment ça va ?",en:"how are you?"},
+{eus:"ongi etorri",es:"bienvenido",fr:"bienvenue",en:"welcome"},
+{eus:"zorte on",es:"buena suerte",fr:"bonne chance",en:"good luck"},
+{eus:"ondo izan",es:"cuídate",fr:"prends soin de toi",en:"take care"},
+{eus:"ikasi",es:"aprender",fr:"apprendre",en:"to learn"}
+];
+
+/* ===== SEEDED PRNG (Mulberry32) ===== */
+function seedFromDate(){
+  const d=new Date();
+  const s=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  let h=0;
+  for(let i=0;i<s.length;i++){h=Math.imul(31,h)+s.charCodeAt(i)|0}
+  return h>>>0;
+}
+function mulberry32(a){
+  return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+}
+
+/* ===== GAME STATE ===== */
+let lang='es';
+let dailyItems=[];
+let rng;
+let selectedLeft=null;
+let selectedRight=null;
+let locked=false;
+let matchCount=0;
+let mistakes=0;
+let timerStarted=false;
+let timerInterval=null;
+let seconds=0;
+let sequence=[]; // track match/miss sequence
+const TODAY_KEY='ee_today';
+
+/* ===== INIT ===== */
+function init(){
+  const seed=seedFromDate();
+  rng=mulberry32(seed);
+
+  // Pick 10 unique indices
+  const indices=[];
+  const pool=[...Array(WORDS.length).keys()];
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(rng()*((i)+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
+  for(let i=0;i<10;i++) indices.push(pool[i]);
+  dailyItems=indices.map(i=>WORDS[i]);
+
+  // Check if already completed today
+  checkTodayState();
+
+  loadStreak();
+  renderBoard();
+  renderProgress();
+  setupLangButtons();
+}
+
+function getDateStr(){
+  const d=new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function checkTodayState(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(TODAY_KEY));
+    if(saved&&saved.date===getDateStr()&&saved.completed){
+      // Already finished today — restore state for display
+      matchCount=10;mistakes=saved.mistakes||0;seconds=saved.seconds||0;
+      sequence=saved.sequence||[];
+      timerStarted=true;
+      document.getElementById('timerVal').textContent=formatTime(seconds);
+      document.getElementById('mistakeVal').textContent=mistakes;
+      // Show modal after short delay
+      setTimeout(()=>showWinModal(),400);
+    }
+  }catch(e){}
+}
+
+/* ===== RENDER ===== */
+function renderBoard(){
+  const left=document.getElementById('colLeft');
+  const right=document.getElementById('colRight');
+  left.innerHTML='';right.innerHTML='';
+
+  // Left column — basque, fixed order
+  dailyItems.forEach((item,i)=>{
+    const t=makeTile(item.eus,i,'left');
+    left.appendChild(t);
+  });
+
+  // Right column — shuffled by daily seed
+  const rightOrder=[...dailyItems.map((item,i)=>({text:item[lang],idx:i}))];
+  // Use a fresh PRNG from same seed for shuffle
+  const seed=seedFromDate();
+  const rng2=mulberry32(seed);
+  // Advance rng2 by 100 calls to get different shuffle than pick
+  for(let i=0;i<100;i++) rng2();
+  for(let i=rightOrder.length-1;i>0;i--){const j=Math.floor(rng2()*((i)+1));[rightOrder[i],rightOrder[j]]=[rightOrder[j],rightOrder[i]]}
+
+  rightOrder.forEach((obj)=>{
+    const t=makeTile(obj.text,obj.idx,'right');
+    right.appendChild(t);
+  });
+
+  // If already completed, mark all matched
+  if(matchCount===10){
+    document.querySelectorAll('.tile').forEach(t=>{t.classList.add('matched')});
+  }
+}
+
+function makeTile(text,idx,side){
+  const d=document.createElement('div');
+  d.className='tile';
+  d.textContent=text;
+  d.dataset.idx=idx;
+  d.dataset.side=side;
+  d.addEventListener('click',()=>onTileClick(d));
+  return d;
+}
+
+function renderProgress(){
+  const c=document.getElementById('progress');
+  c.innerHTML='';
+  for(let i=0;i<10;i++){
+    const dot=document.createElement('div');
+    dot.className='dot';
+    if(i<sequence.length){
+      dot.classList.add(sequence[i]==='ok'?'done':'fail');
+    }
+    c.appendChild(dot);
+  }
+}
+
+/* ===== LANGUAGE SWITCH ===== */
+function setupLangButtons(){
+  document.querySelectorAll('.lang-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      if(btn.dataset.lang===lang)return;
+      document.querySelector('.lang-btn.active').classList.remove('active');
+      btn.classList.add('active');
+      lang=btn.dataset.lang;
+      // Re-render right column only (preserve left selection)
+      selectedLeft=null;selectedRight=null;
+      clearSelections();
+      renderBoard();
+    });
+  });
+}
+
+/* ===== TIMER ===== */
+function startTimer(){
+  if(timerStarted)return;
+  timerStarted=true;
+  timerInterval=setInterval(()=>{
+    seconds++;
+    document.getElementById('timerVal').textContent=formatTime(seconds);
+  },1000);
+}
+function stopTimer(){clearInterval(timerInterval)}
+function formatTime(s){
+  const m=Math.floor(s/60);
+  const sec=s%60;
+  return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+}
+
+/* ===== STREAK ===== */
+function loadStreak(){
+  try{
+    const data=JSON.parse(localStorage.getItem('ee_streak'));
+    if(data){
+      // Check if streak is still alive (last play was yesterday or today)
+      const last=new Date(data.lastDate);
+      const now=new Date();
+      const diff=Math.floor((now-last)/(1000*60*60*24));
+      if(diff>1){data.count=0;} // streak broken
+      document.getElementById('streakVal').textContent=data.count;
+    }
+  }catch(e){}
+}
+function incrementStreak(){
+  let data={count:0,lastDate:''};
+  try{const saved=JSON.parse(localStorage.getItem('ee_streak'));if(saved)data=saved}catch(e){}
+  const today=getDateStr();
+  if(data.lastDate===today)return data.count; // already counted today
+  const last=new Date(data.lastDate);
+  const now=new Date(today);
+  const diff=Math.floor((now-last)/(1000*60*60*24));
+  if(diff===1){data.count++}else if(diff>1){data.count=1}else{data.count=1}
+  data.lastDate=today;
+  localStorage.setItem('ee_streak',JSON.stringify(data));
+  document.getElementById('streakVal').textContent=data.count;
+  return data.count;
+}
+
+/* ===== GAME LOGIC ===== */
+function onTileClick(tile){
+  if(locked||tile.classList.contains('matched'))return;
+  startTimer();
+
+  const side=tile.dataset.side;
+  const idx=parseInt(tile.dataset.idx);
+
+  if(side==='left'){
+    if(selectedLeft)selectedLeft.classList.remove('selected');
+    if(selectedLeft===tile){selectedLeft=null;return}
+    selectedLeft=tile;
+    tile.classList.add('selected');
+  }else{
+    if(selectedRight)selectedRight.classList.remove('selected');
+    if(selectedRight===tile){selectedRight=null;return}
+    selectedRight=tile;
+    tile.classList.add('selected');
+  }
+
+  // Check match if both selected
+  if(selectedLeft&&selectedRight){
+    locked=true;
+    const lIdx=parseInt(selectedLeft.dataset.idx);
+    const rIdx=parseInt(selectedRight.dataset.idx);
+
+    if(lIdx===rIdx){
+      // Match!
+      selectedLeft.classList.add('matched');
+      selectedRight.classList.add('matched');
+      selectedLeft.classList.remove('selected');
+      selectedRight.classList.remove('selected');
+      matchCount++;
+      sequence.push('ok');
+      renderProgress();
+      selectedLeft=null;selectedRight=null;
+      locked=false;
+
+      if(matchCount===10) onWin();
+    }else{
+      // Mismatch
+      mistakes++;
+      sequence.push('miss');
+      document.getElementById('mistakeVal').textContent=mistakes;
+      renderProgress();
+      selectedLeft.classList.add('wrong');
+      selectedRight.classList.add('wrong');
+      const sl=selectedLeft,sr=selectedRight;
+      setTimeout(()=>{
+        sl.classList.remove('wrong','selected');
+        sr.classList.remove('wrong','selected');
+        selectedLeft=null;selectedRight=null;
+        locked=false;
+      },500);
+    }
+  }
+}
+
+function clearSelections(){
+  document.querySelectorAll('.tile.selected').forEach(t=>t.classList.remove('selected'));
+}
+
+/* ===== WIN STATE ===== */
+function onWin(){
+  stopTimer();
+  const streak=incrementStreak();
+  // Save today state
+  try{
+    localStorage.setItem(TODAY_KEY,JSON.stringify({
+      date:getDateStr(),completed:true,mistakes,seconds,sequence
+    }));
+  }catch(e){}
+  setTimeout(()=>showWinModal(),600);
+}
+
+function showWinModal(){
+  let streak=0;
+  try{const d=JSON.parse(localStorage.getItem('ee_streak'));if(d)streak=d.count}catch(e){}
+  document.getElementById('mStreak').textContent=streak;
+  document.getElementById('mTime').textContent=formatTime(seconds);
+  document.getElementById('mMistakes').textContent=mistakes;
+  const seqStr=sequence.map(s=>s==='ok'?'\u{1F7E9}':'\u{1F7E5}').join('');
+  document.getElementById('mSeq').textContent=seqStr;
+  document.getElementById('overlay').classList.add('show');
+}
+
+/* ===== SHARE ===== */
+document.getElementById('shareBtn').addEventListener('click',()=>{
+  let streak=0;
+  try{const d=JSON.parse(localStorage.getItem('ee_streak'));if(d)streak=d.count}catch(e){}
+  const seqStr=sequence.map(s=>s==='ok'?'\u{1F7E9}':'\u{1F7E5}').join('');
+  const text=`Euskara Egunero | \u{1F525} Streak: ${streak} | \u{23F1}\u{FE0F} ${formatTime(seconds)} | ${seqStr}`;
+
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>showToast()).catch(()=>fallbackCopy(text));
+  }else{
+    fallbackCopy(text);
+  }
+});
+
+function fallbackCopy(text){
+  const ta=document.createElement('textarea');
+  ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');showToast()}catch(e){}
+  document.body.removeChild(ta);
+}
+
+function showToast(){
+  const t=document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+/* Close modal on overlay click */
+document.getElementById('overlay').addEventListener('click',(e)=>{
+  if(e.target===document.getElementById('overlay'))document.getElementById('overlay').classList.remove('show');
+});
+
+/* ===== START ===== */
+init();
+</script>
+</body>
+</html>
